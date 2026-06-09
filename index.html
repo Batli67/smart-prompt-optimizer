@@ -637,6 +637,24 @@
       button.textContent = loading ? '⏳ Wird verarbeitet...' : button.dataset.label;
     }
 
+    // Hilfsfunktion: String oder Array sauber in Array umwandeln
+    function parseToArray(value) {
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+      if (typeof value === 'string') {
+        // Bereinige eckige Klammern und Anführungszeichen
+        const clean = value.replace(/^\[|\]$/g, '').replace(/\\"/g, '"');
+        // Versuche JSON zu parsen
+        try {
+          const parsed = JSON.parse('[' + clean + ']');
+          if (Array.isArray(parsed)) return parsed;
+        } catch(e) {}
+        // Fallback: kommagetrennt aufteilen
+        return clean.split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+      }
+      return [];
+    }
+
     // Output anzeigen
     function showResult(result) {
       document.getElementById('clarification_section').style.display = 'none';
@@ -649,38 +667,24 @@
       // Modelle
       const modelsList = document.getElementById('output_models');
       modelsList.innerHTML = '';
-      const models = result.recommendedModels;
-      if (Array.isArray(models)) {
-        models.forEach(m => {
+      parseToArray(result.recommendedModels).forEach(m => {
+        if (m) {
           const li = document.createElement('li');
           li.textContent = m;
           modelsList.appendChild(li);
-        });
-      } else if (typeof models === 'string' && models) {
-        models.split(',').forEach(m => {
-          const li = document.createElement('li');
-          li.textContent = m.trim();
-          modelsList.appendChild(li);
-        });
-      }
+        }
+      });
 
       // Optimierungen
       const optList = document.getElementById('output_optimizations');
       optList.innerHTML = '';
-      const opts = result.optimizations;
-      if (Array.isArray(opts)) {
-        opts.forEach(o => {
+      parseToArray(result.optimizations).forEach(o => {
+        if (o) {
           const li = document.createElement('li');
           li.textContent = o;
           optList.appendChild(li);
-        });
-      } else if (typeof opts === 'string' && opts) {
-        opts.split(',').forEach(o => {
-          const li = document.createElement('li');
-          li.textContent = o.trim();
-          optList.appendChild(li);
-        });
-      }
+        }
+      });
 
       // Modell-Begründung
       const reason = (result.modelReason || '').replace(/\\n/g, '\n');
@@ -704,6 +708,15 @@
       const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = '⏳ Wird verarbeitet...';
+
+      // Output-Bereich sofort anzeigen mit Ladehinweis
+      document.getElementById('output_section').style.display = 'block';
+      document.getElementById('output_prompt').textContent = '⏳ Prompt wird generiert...';
+      document.getElementById('output_models').innerHTML = '';
+      document.getElementById('output_optimizations').innerHTML = '';
+      document.getElementById('output_reason').textContent = '';
+      document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
+
       try {
         const data = collectFormData(userClarification);
         const result = await callN8n(data);
@@ -715,7 +728,7 @@
           showResult(r);
         }
       } catch (err) {
-        alert('Fehler: ' + err.message);
+        document.getElementById('output_prompt').textContent = '❌ Fehler: ' + err.message;
       } finally {
         btn.disabled = false;
         btn.textContent = originalText;
