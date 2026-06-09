@@ -504,14 +504,14 @@
         </div>
         <div class="card-body">
           <div class="actions">
-            <button class="btn btn-muted" type="button">Eingaben prüfen</button>
-            <button class="btn btn-action" type="button">Prompt generieren</button>
+            <button class="btn btn-muted" type="button" onclick="generatePrompt()">Eingaben prüfen</button>
+            <button class="btn btn-action" type="button" id="btn_generate" onclick="generatePrompt()">Prompt generieren</button>
           </div>
           <div class="field" style="margin-top:16px;">
             <label for="feedback">Feedback / Anpassungen <span class="hint">[Textfeld, z. B. Fokus stärker auf Bewertung, Free Cashflow und Dividendenpolitik legen]</span></label>
             <textarea id="feedback" placeholder="z. B. Fokus stärker auf Bewertung, Free Cashflow und Dividendenpolitik legen"></textarea>
           </div>
-          <button class="btn btn-primary" style="background: var(--soft); color: var(--primary-dark); border: 1px solid #bfd1ef;" type="button">Prompt erneut optimieren</button>
+          <button class="btn btn-primary" style="background: var(--soft); color: var(--primary-dark); border: 1px solid #bfd1ef;" type="button" onclick="generatePrompt()">Prompt erneut optimieren</button>
         </div>
       </section>
 
@@ -700,8 +700,10 @@
 
     // Prompt generieren
     async function generatePrompt(userClarification = '') {
-      const btn = document.querySelector('.btn-action[data-action="generate"]');
-      setLoading(btn, true);
+      const btn = document.getElementById('btn_generate');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ Wird verarbeitet...';
       try {
         const data = collectFormData(userClarification);
         const result = await callN8n(data);
@@ -715,7 +717,8 @@
       } catch (err) {
         alert('Fehler: ' + err.message);
       } finally {
-        setLoading(btn, false);
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     }
 
@@ -733,17 +736,6 @@
         alert('Prompt wurde kopiert!');
       });
     }
-
-    // Buttons verknüpfen
-    document.addEventListener('DOMContentLoaded', function() {
-      const generateBtn = document.querySelector('.btn-action');
-      generateBtn.dataset.label = 'Prompt generieren';
-      generateBtn.dataset.action = 'generate';
-      generateBtn.addEventListener('click', () => generatePrompt());
-
-      const reoptimizeBtn = document.querySelector('.btn-primary[style]');
-      reoptimizeBtn.addEventListener('click', () => generatePrompt());
-    });
   </script>
 </body>
 </html>
