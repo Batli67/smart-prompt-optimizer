@@ -410,24 +410,22 @@
             </div>
           </div>
 
-          <div class="grid-2">
-            <div class="field">
-              <label for="output_format">Output Format <span class="hint">[Dropdown: Freitext, Stichpunkte, Tabelle, Bericht, E-Mail, Vergleich, Liste, Zusammenfassung, Sonstiges]</span></label>
-              <select id="output_format">
-                <option>Freitext</option>
-                <option>Stichpunkte</option>
-                <option>Tabelle</option>
-                <option>Bericht</option>
-                <option>E-Mail</option>
-                <option selected>Vergleich</option>
-                <option>Liste</option>
-                <option>Zusammenfassung</option>
-                <option>Sonstiges</option>
-              </select>
+          <div class="field">
+            <label>Ausgabe Format <span class="hint">[Mehrfachauswahl]</span></label>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext" /> Freitext</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte" /> Stichpunkte</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle" /> Tabelle</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht" /> Bericht</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail" /> E-Mail</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich" checked /> Vergleich</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Liste" /> Liste</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung" /> Zusammenfassung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung" /> Schlussfolgerung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges" /> Sonstiges</label>
             </div>
-            <div class="field">
-              <label for="output_addon">Zusatz zum Output-Format <span class="hint">[Textfeld, z. B. Tabelle + Fazit + Handlungsempfehlung]</span></label>
-              <input id="output_addon" type="text" placeholder="z. B. Tabelle + Fazit + Handlungsempfehlung" value="Tabelle + kurze Zusammenfassung + Handlungsempfehlung" />
+            <div id="sonstiges_container" style="display:none; margin-top:10px;">
+              <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben..." />
             </div>
           </div>
 
@@ -605,5 +603,10 @@ Tonalität: sachlich, Business, überzeugend.</div>
       <div class="footer-space"></div>
     </div>
   </div>
+  <script>
+    document.getElementById('chip_sonstiges').addEventListener('change', function() {
+      document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
+    });
+  </script>
 </body>
 </html>
