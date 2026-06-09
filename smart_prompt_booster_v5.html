@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Prompt Booster</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ee;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --soft: #eef4ff;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eff4fb 0%, #f8fafc 100%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 32px auto 64px;
+      padding: 0 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #60a5fa 100%);
+      color: white;
+      border-radius: 26px;
+      padding: 28px 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.92);
+      max-width: 980px;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .btn, button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .18s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: white;
+      color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.16);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .stack { display: grid; gap: 22px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 22px 10px;
+      border-bottom: 1px solid #eef2f7;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    /* Slightly darker header tones for visual separation */
+    .input-card .card-header {
+      background: #d1d5db; /* slightly darker gray for stronger separation */
+    }
+
+    .action-card {
+      background: #fef9e7;
+    }
+
+    .action-card .card-header {
+      background: #f8edc2;
+    }
+
+    .output {
+      background: #dbeafe;
+    }
+
+    .output .card-header {
+      background: #dbeafe;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .card-body {
+      padding: 20px 22px 22px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .field { display: grid; gap: 7px; margin-bottom: 16px; }
+
+    label {
+      font-size: 0.92rem;
+      font-weight: 650;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.84rem;
+    }
+
+    input[type="text"],
+    select,
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      border: 1px solid #cfd8e3;
+      background: #fff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.96rem;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus,
+    input[type="file"]:focus {
+      border-color: #7aa2ff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea {
+      min-height: 136px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px dashed #bfd1ef;
+      border-radius: 12px;
+      background: #fafcff;
+      font-size: 0.94rem;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    #web_search_toggle {
+      border: 2px solid #2563eb;
+      background: #eef4ff;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #d7dfeb;
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .chip input { accent-color: var(--primary); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .btn-action {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-action:hover { background: var(--primary-dark); }
+
+    .btn-muted {
+      background: #edf2f7;
+      color: #1f2937;
+    }
+
+    .input-card {
+      background: #f3f4f6;
+    }
+
+    .output {
+      background: #eaf2ff;
+    }
+
+    .output-box {
+      background: white;
+      border: 1px solid #dce7f7;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .output-box h4 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+    }
+
+    .prompt-preview {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      color: #111827;
+      font-size: 0.9rem;
+    }
+
+    .rank {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.7;
+    }
+
+    .file-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .save-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .footer-space { height: 6px; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .save-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>🧠 Smart Prompt Booster</h1>
+      <p>Bessere Prompts. Bessere Resultate. Weniger Aufwand. Das Tool verwandelt längere, aber oft unstrukturierte KI-Anfragen in klare, strukturierte und leistungsstarke Prompts – inklusive Modell-Empfehlung, Webrecherche-Logik, Attachment-Hinweisen und wiederverwendbaren Vorlagen.</p>
+      <div class="toolbar">
+        <button class="btn btn-primary" type="button">Clear / Reset</button>
+        <button class="btn btn-secondary" type="button">Demo-Daten laden</button>
+      </div>
+    </section>
+
+    <div class="stack">
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">📂 Template / Vorlagen</h2>
+          <p class="card-subtitle">Vorlagen laden, neue Vorlagen speichern oder bestehende Vorlagen aktualisieren.</p>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="field">
+              <label for="template_select">Template auswählen <span class="hint">[Dropdown: Keine Vorlage, Aktienanalyse, Korrespondenz, Bericht/Zusammenfassung, Recherche, Tabellenanalyse, Kreativer Inhalt]</span></label>
+              <select id="template_select">
+                <option>Keine Vorlage</option>
+                <option selected>Aktienanalyse</option>
+                <option>Korrespondenz</option>
+                <option>Bericht / Zusammenfassung</option>
+                <option>Recherche</option>
+                <option>Tabellenanalyse</option>
+                <option>Kreativer Inhalt</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="template_name">Template-Name <span class="hint">[Textfeld, z. B. Aktienanalyse Standard mit Peers]</span></label>
+              <input id="template_name" type="text" placeholder="z. B. Aktienanalyse Standard mit Peers" value="Aktienanalyse Standard mit Peers" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-action" type="button">Als Vorlage speichern</button>
+            <button class="btn btn-muted" type="button">Bestehende Vorlage aktualisieren</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">🧾 Aufgabendefinition</h2>
+          <p class="card-subtitle">Definiere Aufgabe, Rolle, Ziel, Format, Sprache und Tonalität für die Prompt-Optimierung. Der Web-Schalter aktiviert die technische Echtzeit-Websuche beim Generieren.</p>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label for="title">Title <span class="hint">[Textfeld, z. B. Analyse Sika Aktie vs. Wettbewerber]</span></label>
+            <input id="title" type="text" placeholder="z. B. Analyse Sika Aktie vs. Wettbewerber" value="Analyse Sika Aktie vs. Wettbewerber" />
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="category">Category <span class="hint">[Dropdown: Korrespondenz/Kommunikation, Bericht/Zusammenfassung, Recherche/Informationssuche, Analyse/Beurteilung, Strukturierte Ausgabe/Tabelle/Liste, Kreativer Inhalt, Bildgenerierung/Bildbearbeitung]</span></label>
+              <select id="category">
+                <option>Korrespondenz / Kommunikation</option>
+                <option>Bericht / Zusammenfassung</option>
+                <option>Recherche / Informationssuche</option>
+                <option selected>Analyse / Beurteilung</option>
+                <option>Strukturierte Ausgabe / Tabelle / Liste</option>
+                <option>Kreativer Inhalt</option>
+                <option>Bildgenerierung / Bildbearbeitung</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="language">Language <span class="hint">[Dropdown: Deutsch, Englisch, Französisch, Italienisch]</span></label>
+              <select id="language">
+                <option selected>Deutsch</option>
+                <option>Englisch</option>
+                <option>Französisch</option>
+                <option>Italienisch</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="toggle" id="web_search_toggle">
+            <input type="checkbox" id="web_search_active" checked />
+            🌐 Prompt Content Search on Internet / WEB explizit aktivieren
+          </label>
+
+          <div class="field">
+            <label for="task_description">Task Description / Ziel der Aufgabe <span class="hint">[Mehrzeiliges Textfeld]</span></label>
+            <textarea id="task_description" placeholder="z. B. Ich finde die Aktie von XYZ interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann, und wie sich Wachstum, Verschuldung, Dividendenpolitik und Share Buyback Politik im Vergleich zur Konkurrenz entwickeln.">Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann, und wie sich Wachstum, Verschuldung, Free Cashflow, Dividendenpolitik und Share Buyback Politik im Vergleich zur Konkurrenz entwickeln.</textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="role">Role <span class="hint">[Textfeld, z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung]</span></label>
+              <input id="role" type="text" placeholder="z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung" value="Senior Finanzanalyst mit Fokus auf Aktienbewertung" />
+            </div>
+            <div class="field">
+              <label for="target_group">Target Group <span class="hint">[Textfeld, z. B. Privatinvestor, CEO, Kunde, Mitarbeiter]</span></label>
+              <input id="target_group" type="text" placeholder="z. B. Privatinvestor, CEO, Kunde, Mitarbeiter" value="Privatinvestor mit Grundkenntnissen" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Ausgabe Format <span class="hint">[Mehrfachauswahl]</span></label>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext" /> Freitext</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte" /> Stichpunkte</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle" /> Tabelle</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht" /> Bericht</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail" /> E-Mail</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich" checked /> Vergleich</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Liste" /> Liste</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung" /> Zusammenfassung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung" /> Schlussfolgerung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges" /> Sonstiges</label>
+            </div>
+            <div id="sonstiges_container" style="display:none; margin-top:10px;">
+              <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Tone / Tonalität <span class="hint">[Mehrfachauswahl: sachlich, formell, freundlich, kollegial, Business, locker, überzeugend]</span></label>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" checked /> sachlich</label>
+              <label class="chip"><input type="checkbox" /> formell</label>
+              <label class="chip"><input type="checkbox" /> freundlich</label>
+              <label class="chip"><input type="checkbox" /> kollegial</label>
+              <label class="chip"><input type="checkbox" checked /> Business</label>
+              <label class="chip"><input type="checkbox" /> locker</label>
+              <label class="chip"><input type="checkbox" checked /> überzeugend</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">🌐 Erweiterte Optionen – Web Search Einstellungen</h2>
+          <p class="card-subtitle">Inhaltliche Angaben für den Prompt: Wie aktuell soll recherchiert werden und welche Quellen sollen bevorzugt werden? Der technische Web-Schalter befindet sich oben in der Aufgabendefinition.</p>
+        </div>
+        <div class="card-body">
+          <div class="grid-3">
+            <div class="field">
+              <label for="web_search_mode">Web Search Mode <span class="hint">[Dropdown: Keine Websuche, Websuche falls nötig, Websuche zwingend]</span></label>
+              <select id="web_search_mode">
+                <option>Keine Websuche</option>
+                <option>Websuche falls nötig</option>
+                <option selected>Websuche zwingend</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="freshness">Freshness / Aktualität <span class="hint">[Dropdown: Heute, Diese Woche, Letzter Monat, Letzte 3 Monate, Seit Jahresbeginn, Letzte 12 Monate, Nicht relevant]</span></label>
+              <select id="freshness">
+                <option>Heute</option>
+                <option>Diese Woche</option>
+                <option>Letzter Monat</option>
+                <option selected>Letzte 3 Monate</option>
+                <option>Seit Jahresbeginn</option>
+                <option>Letzte 12 Monate</option>
+                <option>Nicht relevant</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="preferred_sources">Preferred Sources <span class="hint">[Textfeld, z. B. Geschäftsberichte, Investor Relations, Reuters, sec.gov]</span></label>
+              <input id="preferred_sources" type="text" placeholder="z. B. Geschäftsberichte, Investor Relations, Reuters, sec.gov" value="Geschäftsberichte, Investor Relations, Reuters" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">📎 Anhänge</h2>
+          <p class="card-subtitle">Dateien als Kontext hinzufügen. Es werden Dateiname, Format und Grösse angezeigt. Keine Inhaltsanalyse im Tool selbst.</p>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label for="attachments">Attachments <span class="hint">[Upload-Funktion]</span></label>
+            <input id="attachments" type="file" multiple />
+          </div>
+          <p class="muted">Beispiel hochgeladene Dateien:</p>
+          <ul class="file-list">
+            <li>Bericht_Q1_2026.pdf (PDF, 2.3 MB)</li>
+            <li>Sika_Annual_Report.xlsx (Excel, 4.8 MB)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card action-card">
+        <div class="card-header">
+          <h2 class="card-title">⚙️ Aktionen</h2>
+          <p class="card-subtitle">Prüfe zuerst die Eingaben und generiere danach den optimierten Prompt inklusive Modell-Empfehlung.</p>
+        </div>
+        <div class="card-body">
+          <div class="actions">
+            <button class="btn btn-muted" type="button">Eingaben prüfen</button>
+            <button class="btn btn-action" type="button">Prompt generieren</button>
+          </div>
+          <div class="field" style="margin-top:16px;">
+            <label for="feedback">Feedback / Anpassungen <span class="hint">[Textfeld, z. B. Fokus stärker auf Bewertung, Free Cashflow und Dividendenpolitik legen]</span></label>
+            <textarea id="feedback" placeholder="z. B. Fokus stärker auf Bewertung, Free Cashflow und Dividendenpolitik legen"></textarea>
+          </div>
+          <button class="btn btn-primary" style="background: var(--soft); color: var(--primary-dark); border: 1px solid #bfd1ef;" type="button">Prompt erneut optimieren</button>
+        </div>
+      </section>
+
+      <section class="card output" id="output_section" style="display:none;">
+        <div class="card-header">
+          <h2 class="card-title">🧠 Generierter Prompt</h2>
+          <p class="card-subtitle">Vorschau des optimierten Prompts mit expliziten Hinweisen zu Webrecherche, Attachments und professionellen Analysepunkten.</p>
+        </div>
+        <div class="card-body">
+          <div class="output-box">
+            <h4>📄 Optimierter Prompt</h4>
+            <div id="output_prompt" class="prompt-preview">Wird generiert...</div>
+            <button class="btn btn-muted" style="margin-top:12px;" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
+          </div>
+          <div class="output-box">
+            <h4>🤖 Empfohlene KI-Modelle</h4>
+            <ol id="output_models" class="rank"></ol>
+          </div>
+          <div class="output-box">
+            <h4>💡 Was wurde optimiert?</h4>
+            <ul id="output_optimizations" class="file-list"></ul>
+          </div>
+          <div class="output-box" id="output_reason_box">
+            <h4>📊 Modell-Begründung</h4>
+            <div id="output_reason" class="prompt-preview"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card output" id="clarification_section" style="display:none;">
+        <div class="card-header">
+          <h2 class="card-title">❓ Rückfrage</h2>
+          <p class="card-subtitle">Das Tool hat eine Rückfrage zu deinen Eingaben.</p>
+        </div>
+        <div class="card-body">
+          <div class="output-box">
+            <p id="clarification_question" style="font-size:1rem; color:#1f2937;"></p>
+            <div class="field" style="margin-top:12px;">
+              <label for="user_clarification">Deine Antwort</label>
+              <textarea id="user_clarification" placeholder="Deine Antwort hier eingeben..."></textarea>
+            </div>
+            <button class="btn btn-action" onclick="submitClarification()">Antwort senden & Prompt generieren</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">💾 Prompt als Vorlage speichern</h2>
+          <p class="card-subtitle">Gute Prompts können gespeichert und als Vorlage wiederverwendet werden.</p>
+        </div>
+        <div class="card-body">
+          <div class="save-row">
+            <div class="field" style="margin-bottom:0;">
+              <label for="save_template_name">Template-Name <span class="hint">[Textfeld, z. B. Aktienanalyse Value Investing mit Webrecherche]</span></label>
+              <input id="save_template_name" type="text" placeholder="z. B. Aktienanalyse Value Investing mit Webrecherche" value="Aktienanalyse Value Investing mit Webrecherche" />
+            </div>
+            <button class="btn btn-action" type="button">Als Vorlage speichern</button>
+            <button class="btn btn-muted" type="button">Vorlage aktualisieren</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-space"></div>
+    </div>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer';
+
+    // Sonstiges Eingabefeld ein/ausblenden
+    document.getElementById('chip_sonstiges').addEventListener('change', function() {
+      document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Formulardaten sammeln
+    function collectFormData(userClarification = '') {
+      const outputFormats = Array.from(
+        document.querySelectorAll('input[name="outputFormat"]:checked')
+      ).map(cb => cb.value);
+
+      const sonstigesText = document.getElementById('outputFormat_sonstiges_text').value;
+      if (sonstigesText) outputFormats.push(sonstigesText);
+
+      const tonalitaet = Array.from(
+        document.querySelectorAll('.chips input[type="checkbox"]:checked')
+      ).filter(cb => cb.name !== 'outputFormat')
+       .map(cb => cb.closest('label').textContent.trim())
+       .join(', ');
+
+      return {
+        titel: document.getElementById('title').value,
+        kategorie: document.getElementById('category').value,
+        sprache: document.getElementById('language').value,
+        aufgabe: document.getElementById('task_description').value,
+        rolle: document.getElementById('role').value,
+        zielgruppe: document.getElementById('target_group').value,
+        outputFormat: outputFormats.join(', '),
+        tonalitaet: tonalitaet,
+        webSearch: document.getElementById('web_search_active').checked ? 'true' : 'false',
+        webSearchMode: document.getElementById('web_search_mode').value,
+        aktualitaet: document.getElementById('freshness').value,
+        preferredSources: document.getElementById('preferred_sources').value,
+        feedback: document.getElementById('feedback').value,
+        userClarification: userClarification
+      };
+    }
+
+    // n8n aufrufen
+    async function callN8n(data) {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Fehler beim Verbinden mit n8n: ' + response.status);
+      return await response.json();
+    }
+
+    // Ladeindikator
+    function setLoading(button, loading) {
+      button.disabled = loading;
+      button.textContent = loading ? '⏳ Wird verarbeitet...' : button.dataset.label;
+    }
+
+    // Output anzeigen
+    function showResult(result) {
+      document.getElementById('clarification_section').style.display = 'none';
+      document.getElementById('output_section').style.display = 'block';
+
+      // Prompt mit Zeilenumbrüchen
+      const promptText = (result.optimizedPrompt || '').replace(/\\n/g, '\n');
+      document.getElementById('output_prompt').textContent = promptText;
+
+      // Modelle
+      const modelsList = document.getElementById('output_models');
+      modelsList.innerHTML = '';
+      const models = result.recommendedModels;
+      if (Array.isArray(models)) {
+        models.forEach(m => {
+          const li = document.createElement('li');
+          li.textContent = m;
+          modelsList.appendChild(li);
+        });
+      } else if (typeof models === 'string' && models) {
+        models.split(',').forEach(m => {
+          const li = document.createElement('li');
+          li.textContent = m.trim();
+          modelsList.appendChild(li);
+        });
+      }
+
+      // Optimierungen
+      const optList = document.getElementById('output_optimizations');
+      optList.innerHTML = '';
+      const opts = result.optimizations;
+      if (Array.isArray(opts)) {
+        opts.forEach(o => {
+          const li = document.createElement('li');
+          li.textContent = o;
+          optList.appendChild(li);
+        });
+      } else if (typeof opts === 'string' && opts) {
+        opts.split(',').forEach(o => {
+          const li = document.createElement('li');
+          li.textContent = o.trim();
+          optList.appendChild(li);
+        });
+      }
+
+      // Modell-Begründung
+      const reason = (result.modelReason || '').replace(/\\n/g, '\n');
+      document.getElementById('output_reason').textContent = reason;
+
+      // Zum Output scrollen
+      document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Rückfrage anzeigen
+    function showClarification(question) {
+      document.getElementById('output_section').style.display = 'none';
+      document.getElementById('clarification_section').style.display = 'block';
+      document.getElementById('clarification_question').textContent = question;
+      document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Prompt generieren
+    async function generatePrompt(userClarification = '') {
+      const btn = document.querySelector('.btn-action[data-action="generate"]');
+      setLoading(btn, true);
+      try {
+        const data = collectFormData(userClarification);
+        const result = await callN8n(data);
+        const r = Array.isArray(result) ? result[0] : result;
+
+        if (r.type === 'clarification' && r.question) {
+          showClarification(r.question);
+        } else {
+          showResult(r);
+        }
+      } catch (err) {
+        alert('Fehler: ' + err.message);
+      } finally {
+        setLoading(btn, false);
+      }
+    }
+
+    // Rückfrage absenden
+    async function submitClarification() {
+      const answer = document.getElementById('user_clarification').value;
+      if (!answer.trim()) { alert('Bitte zuerst eine Antwort eingeben.'); return; }
+      await generatePrompt(answer);
+    }
+
+    // Prompt in Zwischenablage kopieren
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Prompt wurde kopiert!');
+      });
+    }
+
+    // Buttons verknüpfen
+    document.addEventListener('DOMContentLoaded', function() {
+      const generateBtn = document.querySelector('.btn-action');
+      generateBtn.dataset.label = 'Prompt generieren';
+      generateBtn.dataset.action = 'generate';
+      generateBtn.addEventListener('click', () => generatePrompt());
+
+      const reoptimizeBtn = document.querySelector('.btn-primary[style]');
+      reoptimizeBtn.addEventListener('click', () => generatePrompt());
+    });
+  </script>
+</body>
+</html>
