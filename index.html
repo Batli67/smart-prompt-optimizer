@@ -515,7 +515,7 @@
         </div>
       </section>
 
-      <section class="card output">
+      <section class="card output" id="output_section" style="display:none;">
         <div class="card-header">
           <h2 class="card-title">🧠 Generierter Prompt</h2>
           <p class="card-subtitle">Vorschau des optimierten Prompts mit expliziten Hinweisen zu Webrecherche, Attachments und professionellen Analysepunkten.</p>
@@ -523,62 +523,37 @@
         <div class="card-body">
           <div class="output-box">
             <h4>📄 Optimierter Prompt</h4>
-            <div class="prompt-preview">Du bist ein Senior Finanzanalyst mit Fokus auf Aktienbewertung und Kapitalallokation.
-
-Analysiere das Unternehmen Sika im Vergleich zu 2–3 direkten Wettbewerbern.
-
-Beurteile strukturiert folgende Punkte:
-1. Bewertung anhand von Multiples wie KGV und EV/EBITDA
-2. Umsatz-, Gewinn- und Margenentwicklung im Branchenvergleich
-3. Verschuldung, Bilanzqualität und finanzielle Stabilität
-4. Free Cashflow Entwicklung und Cashflow-Qualität
-5. Wettbewerbsvorteile / Burggraben und Nachhaltigkeit der Marktstellung
-6. Dividendenpolitik und deren Stabilität bzw. Wachstum
-7. Share Buyback Politik und Kapitalallokation
-8. Wesentliche Risiken für das Unternehmen und die Aktie
-9. Worst Case Szenario und mögliche Auswirkungen auf Bewertung und Kapitalrendite
-
-Nutze explizit aktuelle Webrecherche, da diese aktiviert wurde.
-Berücksichtige bevorzugt folgende Quellen:
-- Geschäftsberichte
-- Investor Relations Unterlagen
-- Reuters
-- aktuelle Unternehmensprognosen und Guidance
-
-Beziehe ausserdem folgende hochgeladene Dateien als Referenzdokumente in die Analyse ein:
-- Bericht_Q1_2026.pdf
-- Sika_Annual_Report.xlsx
-
-Gib die Ergebnisse strukturiert aus als:
-- Vergleichstabelle mit den wichtigsten Kennzahlen und Beurteilungen
-- kurze Zusammenfassung der wichtigsten Erkenntnisse
-- klare Schlussfolgerung: unterbewertet / fair bewertet / überbewertet
-- kurze Handlungsempfehlung mit Begründung
-
-Zielgruppe: Privatinvestor mit Grundkenntnissen.
-Tonalität: sachlich, Business, überzeugend.</div>
+            <div id="output_prompt" class="prompt-preview">Wird generiert...</div>
+            <button class="btn btn-muted" style="margin-top:12px;" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
           </div>
-
           <div class="output-box">
             <h4>🤖 Empfohlene KI-Modelle</h4>
-            <ol class="rank">
-              <li>ChatGPT (OpenAI)</li>
-              <li>Gemini</li>
-              <li>Mistral</li>
-            </ol>
+            <ol id="output_models" class="rank"></ol>
           </div>
-
           <div class="output-box">
             <h4>💡 Was wurde optimiert?</h4>
-            <ul class="file-list">
-              <li>Rolle und fachlicher Fokus klar definiert</li>
-              <li>Analysepunkte professionell strukturiert und priorisiert</li>
-              <li>Bewertung, KGV, EV/EBITDA, Free Cashflow, Dividendenpolitik und Buybacks ergänzt</li>
-              <li>Risiken und Worst Case Szenario ergänzt</li>
-              <li>Webrecherche explizit aufgenommen</li>
-              <li>Attachments als Referenzdokumente im Prompt genannt</li>
-              <li>Output-Format und Schlussfolgerung konkretisiert</li>
-            </ul>
+            <ul id="output_optimizations" class="file-list"></ul>
+          </div>
+          <div class="output-box" id="output_reason_box">
+            <h4>📊 Modell-Begründung</h4>
+            <div id="output_reason" class="prompt-preview"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card output" id="clarification_section" style="display:none;">
+        <div class="card-header">
+          <h2 class="card-title">❓ Rückfrage</h2>
+          <p class="card-subtitle">Das Tool hat eine Rückfrage zu deinen Eingaben.</p>
+        </div>
+        <div class="card-body">
+          <div class="output-box">
+            <p id="clarification_question" style="font-size:1rem; color:#1f2937;"></p>
+            <div class="field" style="margin-top:12px;">
+              <label for="user_clarification">Deine Antwort</label>
+              <textarea id="user_clarification" placeholder="Deine Antwort hier eingeben..."></textarea>
+            </div>
+            <button class="btn btn-action" onclick="submitClarification()">Antwort senden & Prompt generieren</button>
           </div>
         </div>
       </section>
@@ -603,9 +578,171 @@ Tonalität: sachlich, Business, überzeugend.</div>
       <div class="footer-space"></div>
     </div>
   </div>
+
   <script>
+    const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer';
+
+    // Sonstiges Eingabefeld ein/ausblenden
     document.getElementById('chip_sonstiges').addEventListener('change', function() {
       document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Formulardaten sammeln
+    function collectFormData(userClarification = '') {
+      const outputFormats = Array.from(
+        document.querySelectorAll('input[name="outputFormat"]:checked')
+      ).map(cb => cb.value);
+
+      const sonstigesText = document.getElementById('outputFormat_sonstiges_text').value;
+      if (sonstigesText) outputFormats.push(sonstigesText);
+
+      const tonalitaet = Array.from(
+        document.querySelectorAll('.chips input[type="checkbox"]:checked')
+      ).filter(cb => cb.name !== 'outputFormat')
+       .map(cb => cb.closest('label').textContent.trim())
+       .join(', ');
+
+      return {
+        titel: document.getElementById('title').value,
+        kategorie: document.getElementById('category').value,
+        sprache: document.getElementById('language').value,
+        aufgabe: document.getElementById('task_description').value,
+        rolle: document.getElementById('role').value,
+        zielgruppe: document.getElementById('target_group').value,
+        outputFormat: outputFormats.join(', '),
+        tonalitaet: tonalitaet,
+        webSearch: document.getElementById('web_search_active').checked ? 'true' : 'false',
+        webSearchMode: document.getElementById('web_search_mode').value,
+        aktualitaet: document.getElementById('freshness').value,
+        preferredSources: document.getElementById('preferred_sources').value,
+        feedback: document.getElementById('feedback').value,
+        userClarification: userClarification
+      };
+    }
+
+    // n8n aufrufen
+    async function callN8n(data) {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Fehler beim Verbinden mit n8n: ' + response.status);
+      return await response.json();
+    }
+
+    // Ladeindikator
+    function setLoading(button, loading) {
+      button.disabled = loading;
+      button.textContent = loading ? '⏳ Wird verarbeitet...' : button.dataset.label;
+    }
+
+    // Output anzeigen
+    function showResult(result) {
+      document.getElementById('clarification_section').style.display = 'none';
+      document.getElementById('output_section').style.display = 'block';
+
+      // Prompt mit Zeilenumbrüchen
+      const promptText = (result.optimizedPrompt || '').replace(/\\n/g, '\n');
+      document.getElementById('output_prompt').textContent = promptText;
+
+      // Modelle
+      const modelsList = document.getElementById('output_models');
+      modelsList.innerHTML = '';
+      const models = result.recommendedModels;
+      if (Array.isArray(models)) {
+        models.forEach(m => {
+          const li = document.createElement('li');
+          li.textContent = m;
+          modelsList.appendChild(li);
+        });
+      } else if (typeof models === 'string' && models) {
+        models.split(',').forEach(m => {
+          const li = document.createElement('li');
+          li.textContent = m.trim();
+          modelsList.appendChild(li);
+        });
+      }
+
+      // Optimierungen
+      const optList = document.getElementById('output_optimizations');
+      optList.innerHTML = '';
+      const opts = result.optimizations;
+      if (Array.isArray(opts)) {
+        opts.forEach(o => {
+          const li = document.createElement('li');
+          li.textContent = o;
+          optList.appendChild(li);
+        });
+      } else if (typeof opts === 'string' && opts) {
+        opts.split(',').forEach(o => {
+          const li = document.createElement('li');
+          li.textContent = o.trim();
+          optList.appendChild(li);
+        });
+      }
+
+      // Modell-Begründung
+      const reason = (result.modelReason || '').replace(/\\n/g, '\n');
+      document.getElementById('output_reason').textContent = reason;
+
+      // Zum Output scrollen
+      document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Rückfrage anzeigen
+    function showClarification(question) {
+      document.getElementById('output_section').style.display = 'none';
+      document.getElementById('clarification_section').style.display = 'block';
+      document.getElementById('clarification_question').textContent = question;
+      document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Prompt generieren
+    async function generatePrompt(userClarification = '') {
+      const btn = document.querySelector('.btn-action[data-action="generate"]');
+      setLoading(btn, true);
+      try {
+        const data = collectFormData(userClarification);
+        const result = await callN8n(data);
+        const r = Array.isArray(result) ? result[0] : result;
+
+        if (r.type === 'clarification' && r.question) {
+          showClarification(r.question);
+        } else {
+          showResult(r);
+        }
+      } catch (err) {
+        alert('Fehler: ' + err.message);
+      } finally {
+        setLoading(btn, false);
+      }
+    }
+
+    // Rückfrage absenden
+    async function submitClarification() {
+      const answer = document.getElementById('user_clarification').value;
+      if (!answer.trim()) { alert('Bitte zuerst eine Antwort eingeben.'); return; }
+      await generatePrompt(answer);
+    }
+
+    // Prompt in Zwischenablage kopieren
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Prompt wurde kopiert!');
+      });
+    }
+
+    // Buttons verknüpfen
+    document.addEventListener('DOMContentLoaded', function() {
+      const generateBtn = document.querySelector('.btn-action');
+      generateBtn.dataset.label = 'Prompt generieren';
+      generateBtn.dataset.action = 'generate';
+      generateBtn.addEventListener('click', () => generatePrompt());
+
+      const reoptimizeBtn = document.querySelector('.btn-primary[style]');
+      reoptimizeBtn.addEventListener('click', () => generatePrompt());
     });
   </script>
 </body>
