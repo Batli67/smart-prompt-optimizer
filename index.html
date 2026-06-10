@@ -73,6 +73,7 @@
     <div class="toolbar">
       <button class="btn btn-primary" onclick="clearForm()">🗑️ Clear / Reset Formular</button>
       <button class="btn btn-secondary" onclick="loadDemo()">📋 Demo-Daten laden</button>
+      <button class="btn btn-secondary" onclick="openPricingModal()">💰 KI-Modell Preise</button>
     </div>
   </section>
 
@@ -236,14 +237,20 @@
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">📎 Anhänge</h2>
-        <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt.</p>
+        <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt. Grössenschätzung basiert auf Textinhalt (Bilder nicht eingerechnet).</p>
       </div>
       <div class="card-body">
-        <div class="field">
-          <label for="attachments">Dateien hochladen</label>
-          <input id="attachments" type="file" multiple onchange="updateFileList()" />
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+          <div class="field" style="flex:1;min-width:220px;margin-bottom:0;">
+            <label for="attachments">Dateien hochladen</label>
+            <input id="attachments" type="file" multiple onchange="updateFileList()" />
+          </div>
+          <div id="file_assessment" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-size:0.88rem;color:#166534;min-width:260px;">
+            <div id="file_assessment_content"></div>
+          </div>
         </div>
-        <ul id="file_list" class="file-list muted"></ul>
+        <ul id="file_list" class="file-list muted" style="margin-top:8px;"></ul>
+        <p class="muted" style="margin-top:6px;font-size:0.82rem;">📌 Roadmap: Echte Token-Analyse per Textextraktion (ohne Bilder) geplant</p>
       </div>
     </section>
 
@@ -255,7 +262,7 @@
       </div>
       <div class="card-body">
         <div class="actions">
-          <button class="btn btn-muted" onclick="generatePrompt()">🔍 Eingaben prüfen</button>
+          <button class="btn btn-muted" onclick="generatePrompt()">🔍 Eingaben prüfen / erneut prüfen</button>
           <button class="btn btn-action" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
@@ -276,7 +283,10 @@
         <div class="output-box">
           <h4>📄 Optimierter Prompt <span class="hint" style="font-weight:400;">– direkt bearbeitbar</span></h4>
           <textarea id="output_prompt" class="prompt-preview" style="min-height:300px;width:100%;border:1px dashed #bfd1ef;border-radius:12px;padding:12px;background:#fafcff;resize:vertical;"></textarea>
-          <button class="btn btn-muted" style="margin-top:12px;" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn btn-muted" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
+            <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="generatePrompt()">🔄 Prompt erneut optimieren</button>
+          </div>
         </div>
         <div class="token-box" id="token_box">
           ⚡ Token-Schätzung: <strong id="token_count">–</strong> Tokens · ca. <strong id="token_percent">–</strong>% des GPT-4o Kontextfensters (128k Tokens) genutzt
@@ -314,41 +324,29 @@
       </div>
     </section>
 
-    <!-- PROMPT SPEICHERN -->
+    <!-- PROMPT SPEICHERN + GESPEICHERTE PROMPTS (kombiniert) -->
     <section class="card">
       <div class="card-header">
-        <h2 class="card-title">💾 Prompt als Vorlage speichern</h2>
-        <p class="card-subtitle">Guten Prompt speichern und später wieder abrufen.</p>
+        <h2 class="card-title">💾 Prompts speichern &amp; abrufen</h2>
+        <p class="card-subtitle">Gute Prompts speichern und frühere Prompts mit allen Feldern wiederherstellen.</p>
       </div>
       <div class="card-body">
-        <div class="save-row">
+        <div class="save-row" style="margin-bottom:16px;">
           <div class="field" style="margin-bottom:0;">
             <label for="save_prompt_name">Name für diesen Prompt</label>
-            <input id="save_prompt_name" type="text" placeholder="z. B. Sika Aktienanalyse mit Peers Mai 2026" />
+            <input id="save_prompt_name" type="text" placeholder="z. B. Sika Aktienanalyse mit Peers Juni 2026" />
           </div>
-          <button class="btn btn-action" onclick="savePrompt()">💾 Prompt speichern</button>
-          <button class="btn btn-muted" onclick="updateSavedPrompt()">🔄 Prompt aktualisieren</button>
+          <button class="btn btn-action" onclick="savePrompt()">💾 Speichern</button>
+          <button class="btn btn-muted" onclick="updateSavedPrompt()">🔄 Aktualisieren</button>
         </div>
-      </div>
-    </section>
-
-    <!-- GESPEICHERTE PROMPTS -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">📁 Gespeicherte Prompts</h2>
-        <p class="card-subtitle">Frühere Prompts abrufen – alle Formularfelder und der generierte Output werden wiederhergestellt.</p>
-      </div>
-      <div class="card-body">
-        <div class="sort-row">
-          <label><input type="radio" name="sort_prompts" value="newest" checked onchange="renderSavedPrompts()" /> Neueste zuerst</label>
-          <label><input type="radio" name="sort_prompts" value="alpha" onchange="renderSavedPrompts()" /> Alphabetisch</label>
-        </div>
-        <div class="grid-2" style="align-items:end;">
-          <div class="field" style="margin-bottom:0;">
-            <label for="saved_prompts_select">Gespeicherten Prompt auswählen</label>
-            <select id="saved_prompts_select"></select>
+        <div style="border-top:1px solid #eef2f7;padding-top:14px;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:0.9rem;flex-wrap:wrap;">
+            <span style="font-weight:600;color:#6b7280;">Sortieren:</span>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="newest" checked onchange="renderSavedPrompts()" /> Neueste zuerst</label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="alpha" onchange="renderSavedPrompts()" /> Alphabetisch</label>
           </div>
-          <div class="actions" style="margin-top:0;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="saved_prompts_select" style="flex:1;min-width:200px;"></select>
             <button class="btn btn-action" onclick="loadSavedPrompt()">📂 Prompt öffnen</button>
             <button class="btn btn-danger" onclick="deleteSavedPrompt()">🗑️ Löschen</button>
           </div>
@@ -357,6 +355,95 @@
     </section>
 
     <div class="footer-space"></div>
+  </div>
+</div>
+
+<!-- MODELLPREISE POPUP -->
+<div id="pricing_modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
+  <div style="background:white;border-radius:18px;max-width:900px;margin:40px auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0;color:white;font-size:1.1rem;">💰 KI-Modell Preise &amp; Spezifikationen</h3>
+        <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:0.85rem;" id="pricing_stand_text">Stand: Juni 2026 · Bitte monatlich aktualisieren</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span id="pricing_status_badge" style="font-size:0.75rem;padding:3px 10px;border-radius:8px;background:#f0fdf4;color:#166534;font-weight:600;">Aktuell</span>
+        <button onclick="closePricingModal()" style="background:rgba(255,255,255,0.2);color:white;border:none;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;line-height:1;">✕</button>
+      </div>
+    </div>
+    <div style="background:#f8fafc;padding:10px 24px;border-bottom:1px solid #e2e8f0;font-size:0.82rem;color:#6b7280;">
+      ⚡ Kosten in ~USD / 10'000 Tokens · 10'000 Tokens ≈ 7'500 Wörter · Kontextfenster = max. Textmenge pro Anfrage
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem;" id="pricing_table">
+        <thead>
+          <tr style="background:#1e3a5f;color:white;">
+            <th style="padding:9px 12px;text-align:left;">Modell</th>
+            <th style="padding:9px 8px;text-align:left;">Anbieter</th>
+            <th style="padding:9px 8px;text-align:right;">Input<br>$/10k T.</th>
+            <th style="padding:9px 8px;text-align:right;">Output<br>$/10k T.</th>
+            <th style="padding:9px 8px;text-align:right;">Kontext</th>
+            <th style="padding:9px 8px;text-align:center;">Training</th>
+            <th style="padding:9px 12px;text-align:left;">Beste Anwendungsgebiete</th>
+          </tr>
+        </thead>
+        <tbody id="pricing_tbody"></tbody>
+      </table>
+    </div>
+    <div style="padding:14px 24px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:0.82rem;color:#6b7280;">
+        📅 Nächste Aktualisierung empfohlen: <strong id="next_update_text">Juli 2026</strong>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-muted" style="font-size:0.85rem;padding:8px 14px;" onclick="exportPricingCSV()">📥 Als CSV exportieren</button>
+        <button class="btn btn-muted" style="font-size:0.85rem;padding:8px 14px;" onclick="openEditPricing()">✏️ Preise bearbeiten</button>
+        <button class="btn btn-action" style="font-size:0.85rem;padding:8px 14px;" onclick="closePricingModal()">✅ Schliessen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PREISE BEARBEITEN POPUP -->
+<div id="edit_pricing_modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1001;overflow-y:auto;">
+  <div style="background:white;border-radius:18px;max-width:640px;margin:40px auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <h3 style="margin:0 0 8px;font-size:1rem;color:#1e3a5f;">✏️ Modellpreise manuell aktualisieren</h3>
+    <p style="margin:0 0 16px;font-size:0.85rem;color:#6b7280;">Wähle ein Modell und passe die Werte an. Alle Änderungen werden lokal gespeichert.</p>
+    <div class="field">
+      <label>Modell auswählen</label>
+      <select id="edit_model_select" onchange="fillEditForm()"></select>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Input $ pro Million Tokens</label>
+        <input type="text" id="edit_input_price" placeholder="z. B. 5.00" />
+      </div>
+      <div class="field">
+        <label>Output $ pro Million Tokens</label>
+        <input type="text" id="edit_output_price" placeholder="z. B. 30.00" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Kontextfenster</label>
+        <input type="text" id="edit_context" placeholder="z. B. 128k" />
+      </div>
+      <div class="field">
+        <label>Training bis</label>
+        <input type="text" id="edit_training" placeholder="z. B. Apr 2025" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Anwendungsgebiete</label>
+      <input type="text" id="edit_strengths" placeholder="z. B. Finanzanalyse, Coding, Reasoning" />
+    </div>
+    <div class="field">
+      <label>Stand (Monat Jahr)</label>
+      <input type="text" id="edit_stand" placeholder="z. B. Juli 2026" />
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-action" onclick="saveEditedModel()">💾 Speichern</button>
+      <button class="btn btn-muted" onclick="closeEditPricing()">Abbrechen</button>
+    </div>
   </div>
 </div>
 
@@ -520,16 +607,28 @@ function clearForm() {
   document.getElementById('file_list').innerHTML = '';
 }
 
-// ── FILE LIST ────────────────────────────────────────────────────────────────
+// ── FILE LIST + BEURTEILUNG ───────────────────────────────────────────────────
 function updateFileList() {
   const files = document.getElementById('attachments').files;
   const list = document.getElementById('file_list');
+  const assessment = document.getElementById('file_assessment');
+  const assessContent = document.getElementById('file_assessment_content');
   list.innerHTML = '';
+  if (files.length === 0) { assessment.style.display = 'none'; return; }
+  let totalKB = 0;
   Array.from(files).forEach(f => {
     const li = document.createElement('li');
     li.textContent = f.name + ' (' + (f.size / 1024).toFixed(0) + ' KB)';
     list.appendChild(li);
+    totalKB += f.size / 1024;
   });
+  // Schätzung: 1 KB Text ≈ 250 Tokens (ohne Bilder, konservativ)
+  const estTokens = Math.round(totalKB * 250);
+  const pct = ((estTokens / 128000) * 100).toFixed(1);
+  assessContent.innerHTML = `<strong>📎 ${files.length} Datei${files.length>1?'en':''}</strong> · ${totalKB.toFixed(0)} KB total<br>
+    ⚡ ~${estTokens.toLocaleString('de-CH')} Tokens geschätzt · ${pct}% des Kontextfensters<br>
+    <span style="font-size:0.78rem;opacity:0.8;">Schätzung basiert auf Dateigrösse (Bilder nicht eingerechnet)</span>`;
+  assessment.style.display = 'block';
 }
 
 // ── FORMULARDATEN SAMMELN ────────────────────────────────────────────────────
@@ -786,6 +885,163 @@ function renderSavedPrompts() {
 // ── SONSTIGES TOGGLE ─────────────────────────────────────────────────────────
 document.getElementById('chip_sonstiges').addEventListener('change', function() {
   document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
+});
+
+// ── MODELLPREISE ──────────────────────────────────────────────────────────────
+const DEFAULT_MODELS = [
+  { name:'GPT-5.5', provider:'OpenAI', inputM:5.00, outputM:30.00, context:'128k', training:'Apr 2025', strengths:'Finanzanalyse, Reasoning, komplexe Analysen', tier:'premium' },
+  { name:'GPT-5.4', provider:'OpenAI', inputM:2.50, outputM:10.00, context:'128k', training:'Apr 2025', strengths:'Analyse, Berichte, Tabellen, Recherche', tier:'mid' },
+  { name:'Claude Opus 4.6', provider:'Anthropic', inputM:5.00, outputM:25.00, context:'200k', training:'Mär 2025', strengths:'Lange Dokumente, juristische Texte, tiefe Analyse', tier:'premium' },
+  { name:'Claude Sonnet 4.6', provider:'Anthropic', inputM:3.00, outputM:15.00, context:'200k', training:'Mär 2025', strengths:'Textgenerierung, PDF-Analyse, Korrespondenz', tier:'mid' },
+  { name:'Gemini 2.5 Pro', provider:'Google', inputM:1.25, outputM:5.00, context:'2M', training:'Jan 2025', strengths:'Websuche, Bildanalyse, grosse Dokumente', tier:'mid' },
+  { name:'Gemini 2.5 Flash', provider:'Google', inputM:0.30, outputM:2.50, context:'1M', training:'Jan 2025', strengths:'Schnelle Recherche, Übersetzungen, Budget', tier:'budget' },
+  { name:'Grok 4.3', provider:'xAI', inputM:1.25, outputM:2.50, context:'1M', training:'Echtzeit X', strengths:'Echtzeit-News, Social Media, Marktdaten', tier:'mid' },
+  { name:'Grok 4 Fast', provider:'xAI', inputM:0.20, outputM:0.50, context:'2M', training:'Echtzeit X', strengths:'Schnelle Abfragen, News-Monitoring', tier:'budget' },
+  { name:'DeepSeek V4 Pro', provider:'DeepSeek', inputM:0.435, outputM:0.87, context:'1M', training:'Dez 2024', strengths:'Coding, Tabellenanalyse, Excel-Logik', tier:'mid' },
+  { name:'DeepSeek V4 Flash', provider:'DeepSeek', inputM:0.14, outputM:0.28, context:'1M', training:'Dez 2024', strengths:'Budget-Massenverarbeitung, Coding', tier:'budget' },
+  { name:'Mistral Large 3', provider:'Mistral', inputM:2.00, outputM:6.00, context:'128k', training:'Feb 2025', strengths:'EU-Datenschutz, DSGVO, Mehrsprachig', tier:'mid' },
+  { name:'Llama 4 Maverick', provider:'Meta/OSS', inputM:0.27, outputM:0.85, context:'1M', training:'Jan 2025', strengths:'Open-Source, Selbst-Hosting, Datenschutz', tier:'budget' },
+  { name:'Perplexity Pro', provider:'Perplexity', inputM:null, outputM:null, context:'32k', training:'Echtzeit', strengths:'Quellenbasierte Recherche, Fact-Checking', tier:'special' },
+];
+
+function getPricingData() {
+  try {
+    const stored = localStorage.getItem('spb_pricing');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return { stand: 'Juni 2026', naechste: 'Juli 2026', modelle: DEFAULT_MODELS };
+}
+
+function savePricingData(data) {
+  localStorage.setItem('spb_pricing', JSON.stringify(data));
+}
+
+function fmtPrice(val) {
+  if (val === null || val === undefined) return 'Abo';
+  const p = val / 100;
+  if (p < 0.001) return '<$0.001';
+  return '$' + p.toFixed(p < 0.01 ? 4 : p < 0.1 ? 3 : 2);
+}
+
+const TIER_STYLE = {
+  premium: { bg:'#EEF4FF', color:'#1D4ED8', label:'Premium' },
+  mid:     { bg:'#F0FDF4', color:'#166534', label:'Standard' },
+  budget:  { bg:'#FEF9E7', color:'#92400E', label:'Budget' },
+  special: { bg:'#F5F3FF', color:'#5B21B6', label:'Spezial' },
+};
+
+function renderPricingTable() {
+  const data = getPricingData();
+  document.getElementById('pricing_stand_text').textContent = `Stand: ${data.stand} · Bitte monatlich aktualisieren`;
+  document.getElementById('next_update_text').textContent = data.naechste || 'Nächsten Monat';
+  const tbody = document.getElementById('pricing_tbody');
+  tbody.innerHTML = '';
+  data.modelle.forEach((m, i) => {
+    const ts = TIER_STYLE[m.tier] || TIER_STYLE.mid;
+    const tr = document.createElement('tr');
+    tr.style.background = i % 2 === 0 ? 'white' : '#f8fafc';
+    tr.style.borderBottom = '1px solid #e2e8f0';
+    tr.innerHTML = `
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap;">
+        ${m.name}
+        <span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:${ts.bg};color:${ts.color};font-weight:600;">${ts.label}</span>
+      </td>
+      <td style="padding:8px;color:#6b7280;white-space:nowrap;">${m.provider}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.inputM)}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.outputM)}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap;color:#6b7280;">${m.context}</td>
+      <td style="padding:8px;text-align:center;white-space:nowrap;font-size:0.78rem;color:#6b7280;">${m.training}</td>
+      <td style="padding:8px 12px;color:#6b7280;font-size:0.8rem;">${m.strengths}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function openPricingModal() {
+  renderPricingTable();
+  document.getElementById('pricing_modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePricingModal() {
+  document.getElementById('pricing_modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function openEditPricing() {
+  const data = getPricingData();
+  const sel = document.getElementById('edit_model_select');
+  sel.innerHTML = '';
+  data.modelle.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m.name + ' (' + m.provider + ')';
+    sel.appendChild(opt);
+  });
+  document.getElementById('edit_stand').value = data.stand || '';
+  fillEditForm();
+  document.getElementById('edit_pricing_modal').style.display = 'block';
+}
+
+function fillEditForm() {
+  const data = getPricingData();
+  const idx = parseInt(document.getElementById('edit_model_select').value);
+  const m = data.modelle[idx];
+  if (!m) return;
+  document.getElementById('edit_input_price').value = m.inputM !== null ? m.inputM : '';
+  document.getElementById('edit_output_price').value = m.outputM !== null ? m.outputM : '';
+  document.getElementById('edit_context').value = m.context || '';
+  document.getElementById('edit_training').value = m.training || '';
+  document.getElementById('edit_strengths').value = m.strengths || '';
+}
+
+function saveEditedModel() {
+  const data = getPricingData();
+  const idx = parseInt(document.getElementById('edit_model_select').value);
+  const inVal = document.getElementById('edit_input_price').value.trim();
+  const outVal = document.getElementById('edit_output_price').value.trim();
+  data.modelle[idx].inputM = inVal ? parseFloat(inVal) : null;
+  data.modelle[idx].outputM = outVal ? parseFloat(outVal) : null;
+  data.modelle[idx].context = document.getElementById('edit_context').value.trim();
+  data.modelle[idx].training = document.getElementById('edit_training').value.trim();
+  data.modelle[idx].strengths = document.getElementById('edit_strengths').value.trim();
+  const newStand = document.getElementById('edit_stand').value.trim();
+  if (newStand) data.stand = newStand;
+  savePricingData(data);
+  closeEditPricing();
+  renderPricingTable();
+  alert('Preise gespeichert!');
+}
+
+function closeEditPricing() {
+  document.getElementById('edit_pricing_modal').style.display = 'none';
+}
+
+function exportPricingCSV() {
+  const data = getPricingData();
+  const headers = ['Modell','Anbieter','Input $/M','Output $/M','Kontext','Training bis','Anwendungsgebiete','Tier'];
+  const rows = data.modelle.map(m => [
+    m.name, m.provider,
+    m.inputM !== null ? m.inputM : 'Abo',
+    m.outputM !== null ? m.outputM : '-',
+    m.context, m.training, m.strengths, m.tier
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Close modals on backdrop click
+document.getElementById('pricing_modal').addEventListener('click', function(e) {
+  if (e.target === this) closePricingModal();
+});
+document.getElementById('edit_pricing_modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditPricing();
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
