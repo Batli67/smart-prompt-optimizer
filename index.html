@@ -71,7 +71,6 @@
 <body>
 <div class="container">
 
-  <!-- HERO -->
   <section class="hero">
     <h1>🧠 Smart Prompt Booster</h1>
     <p>Bessere Prompts. Bessere Resultate. Weniger Aufwand. Das Tool verwandelt unstrukturierte KI-Anfragen in klare, professionelle Prompts – inklusive Modell-Empfehlung, Webrecherche-Logik und wiederverwendbaren Vorlagen.</p>
@@ -84,7 +83,6 @@
 
   <div class="stack">
 
-    <!-- TEMPLATES -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">📂 Template / Vorlagen</h2>
@@ -117,7 +115,6 @@
       </div>
     </section>
 
-    <!-- AUFGABENDEFINITION -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">🧾 Aufgabendefinition</h2>
@@ -202,7 +199,6 @@
       </div>
     </section>
 
-    <!-- WEB SEARCH -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">🌐 Erweiterte Optionen – Web Search Einstellungen</h2>
@@ -238,7 +234,6 @@
       </div>
     </section>
 
-    <!-- ANHÄNGE -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">📎 Anhänge</h2>
@@ -259,7 +254,6 @@
       </div>
     </section>
 
-    <!-- AKTIONEN -->
     <section class="card action-card">
       <div class="card-header">
         <h2 class="card-title">⚙️ Aktionen</h2>
@@ -278,7 +272,6 @@
       </div>
     </section>
 
-    <!-- OUTPUT -->
     <section class="card output" id="output_section" style="display:none;">
       <div class="card-header">
         <h2 class="card-title">🧠 Generierter Prompt</h2>
@@ -311,7 +304,6 @@
       </div>
     </section>
 
-    <!-- RÜCKFRAGE -->
     <section class="card output" id="clarification_section" style="display:none;">
       <div class="card-header">
         <h2 class="card-title">❓ Rückfrage</h2>
@@ -329,7 +321,6 @@
       </div>
     </section>
 
-    <!-- PROMPT SPEICHERN + GESPEICHERTE PROMPTS (kombiniert) -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">💾 Prompts speichern &amp; abrufen</h2>
@@ -454,6 +445,7 @@
 
 <script>
 const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer-BA';
+const API_KEY = 'SPB-2025-zhaw-secure-key'; // ← Header Auth Key für Webhook-Authentifizierung
 
 // ── TEMPLATES ──────────────────────────────────────────────────────────────
 const TEMPLATES = {
@@ -567,12 +559,8 @@ function loadTemplate(key) {
   document.getElementById('task_description').value = t.task;
   document.getElementById('role').value = t.role;
   document.getElementById('target_group').value = t.targetGroup;
-  document.querySelectorAll('input[name="outputFormat"]').forEach(cb => {
-    cb.checked = t.outputFormats.includes(cb.value);
-  });
-  document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => {
-    cb.checked = t.tone.includes(cb.value);
-  });
+  document.querySelectorAll('input[name="outputFormat"]').forEach(cb => { cb.checked = t.outputFormats.includes(cb.value); });
+  document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => { cb.checked = t.tone.includes(cb.value); });
   setSelectValue('web_search_mode', t.webSearchMode);
   setSelectValue('freshness', t.freshness);
   document.getElementById('preferred_sources').value = t.sources;
@@ -581,19 +569,12 @@ function loadTemplate(key) {
 function setSelectValue(id, value) {
   const sel = document.getElementById(id);
   for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].text === value || sel.options[i].value === value) {
-      sel.selectedIndex = i; return;
-    }
+    if (sel.options[i].text === value || sel.options[i].value === value) { sel.selectedIndex = i; return; }
   }
 }
 
-// ── DEMO DATEN ──────────────────────────────────────────────────────────────
-function loadDemo() {
-  document.getElementById('template_select').value = 'aktienanalyse';
-  loadTemplate('aktienanalyse');
-}
+function loadDemo() { document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
 
-// ── CLEAR FORM ──────────────────────────────────────────────────────────────
 function clearForm() {
   document.getElementById('title').value = '';
   document.getElementById('task_description').value = '';
@@ -612,7 +593,6 @@ function clearForm() {
   document.getElementById('file_list').innerHTML = '';
 }
 
-// ── FILE LIST + BEURTEILUNG ───────────────────────────────────────────────────
 function updateFileList() {
   const files = document.getElementById('attachments').files;
   const list = document.getElementById('file_list');
@@ -627,7 +607,6 @@ function updateFileList() {
     list.appendChild(li);
     totalKB += f.size / 1024;
   });
-  // Schätzung: 1 KB Text ≈ 250 Tokens (ohne Bilder, konservativ)
   const estTokens = Math.round(totalKB * 250);
   const pct = ((estTokens / 128000) * 100).toFixed(1);
   assessContent.innerHTML = `<strong>📎 ${files.length} Datei${files.length>1?'en':''}</strong> · ${totalKB.toFixed(0)} KB total<br>
@@ -636,7 +615,6 @@ function updateFileList() {
   assessment.style.display = 'block';
 }
 
-// ── FORMULARDATEN SAMMELN ────────────────────────────────────────────────────
 function collectFormData(userClarification = '') {
   const outputFormats = Array.from(document.querySelectorAll('input[name="outputFormat"]:checked')).map(cb => cb.value);
   const sonstigesText = document.getElementById('outputFormat_sonstiges_text').value;
@@ -664,18 +642,20 @@ function collectFormData(userClarification = '') {
   };
 }
 
-// ── N8N AUFRUFEN ─────────────────────────────────────────────────────────────
+// ── N8N AUFRUFEN – MIT HEADER AUTH ────────────────────────────────────────────
 async function callN8n(data) {
   const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY                  // ← Authentifizierungs-Header
+    },
     body: JSON.stringify(data)
   });
   if (!response.ok) throw new Error('n8n Fehler: ' + response.status);
   return await response.json();
 }
 
-// ── ARRAY PARSEN ─────────────────────────────────────────────────────────────
 function parseToArray(value) {
   if (!value) return [];
   if (Array.isArray(value)) return value;
@@ -687,7 +667,6 @@ function parseToArray(value) {
   return [];
 }
 
-// ── TOKEN SCHÄTZUNG ───────────────────────────────────────────────────────────
 function updateTokenEstimate(text) {
   const tokens = Math.round(text.length / 4);
   const percent = ((tokens / 128000) * 100).toFixed(1);
@@ -695,7 +674,6 @@ function updateTokenEstimate(text) {
   document.getElementById('token_percent').textContent = percent;
 }
 
-// ── OUTPUT ANZEIGEN ───────────────────────────────────────────────────────────
 function showResult(result) {
   document.getElementById('clarification_section').style.display = 'none';
   document.getElementById('output_section').style.display = 'block';
@@ -704,14 +682,10 @@ function showResult(result) {
   updateTokenEstimate(promptText);
   const modelsList = document.getElementById('output_models');
   modelsList.innerHTML = '';
-  parseToArray(result.recommendedModels).forEach(m => {
-    if (m) { const li = document.createElement('li'); li.textContent = m; modelsList.appendChild(li); }
-  });
+  parseToArray(result.recommendedModels).forEach(m => { if (m) { const li = document.createElement('li'); li.textContent = m; modelsList.appendChild(li); } });
   const optList = document.getElementById('output_optimizations');
   optList.innerHTML = '';
-  parseToArray(result.optimizations).forEach(o => {
-    if (o) { const li = document.createElement('li'); li.textContent = o; optList.appendChild(li); }
-  });
+  parseToArray(result.optimizations).forEach(o => { if (o) { const li = document.createElement('li'); li.textContent = o; optList.appendChild(li); } });
   document.getElementById('output_reason').textContent = (result.modelReason || '').replace(/\\n/g, '\n');
   document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
 }
@@ -723,7 +697,6 @@ function showClarification(question) {
   document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── PROMPT GENERIEREN ─────────────────────────────────────────────────────────
 async function generatePrompt(userClarification = '') {
   const btn = document.getElementById('btn_generate');
   const originalText = btn.textContent;
@@ -761,7 +734,6 @@ function copyToClipboard(elementId) {
   navigator.clipboard.writeText(text).then(() => alert('Prompt wurde kopiert!'));
 }
 
-// ── TEMPLATE SPEICHERN ────────────────────────────────────────────────────────
 function saveTemplate() {
   const name = document.getElementById('template_name').value.trim();
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
@@ -783,7 +755,6 @@ function updateTemplate() {
   alert('Vorlage "' + name + '" aktualisiert!');
 }
 
-// ── PROMPT SPEICHERN ──────────────────────────────────────────────────────────
 function savePrompt() {
   const name = document.getElementById('save_prompt_name').value.trim();
   if (!name) { alert('Bitte einen Namen für den Prompt eingeben.'); return; }
@@ -887,7 +858,6 @@ function renderSavedPrompts() {
   });
 }
 
-// ── SONSTIGES TOGGLE ─────────────────────────────────────────────────────────
 document.getElementById('chip_sonstiges').addEventListener('change', function() {
   document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
 });
@@ -910,31 +880,22 @@ const DEFAULT_MODELS = [
 ];
 
 function getPricingData() {
-  try {
-    const stored = localStorage.getItem('spb_pricing');
-    if (stored) return JSON.parse(stored);
-  } catch(e) {}
+  try { const stored = localStorage.getItem('spb_pricing'); if (stored) return JSON.parse(stored); } catch(e) {}
   return { stand: 'Juni 2026', naechste: 'Juli 2026', modelle: DEFAULT_MODELS };
 }
-
-function savePricingData(data) {
-  localStorage.setItem('spb_pricing', JSON.stringify(data));
-}
-
+function savePricingData(data) { localStorage.setItem('spb_pricing', JSON.stringify(data)); }
 function fmtPrice(val) {
   if (val === null || val === undefined) return 'Abo';
   const p = val / 100;
   if (p < 0.001) return '<$0.001';
   return '$' + p.toFixed(p < 0.01 ? 4 : p < 0.1 ? 3 : 2);
 }
-
 const TIER_STYLE = {
   premium: { bg:'#EEF4FF', color:'#1D4ED8', label:'Premium' },
   mid:     { bg:'#F0FDF4', color:'#166534', label:'Standard' },
   budget:  { bg:'#FEF9E7', color:'#92400E', label:'Budget' },
   special: { bg:'#F5F3FF', color:'#5B21B6', label:'Spezial' },
 };
-
 function renderPricingTable() {
   const data = getPricingData();
   document.getElementById('pricing_stand_text').textContent = `Stand: ${data.stand} · Bitte monatlich aktualisieren`;
@@ -947,8 +908,7 @@ function renderPricingTable() {
     tr.style.background = i % 2 === 0 ? 'white' : '#f8fafc';
     tr.style.borderBottom = '1px solid #e2e8f0';
     tr.innerHTML = `
-      <td style="padding:8px 12px;font-weight:600;white-space:nowrap;">
-        ${m.name}
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap;">${m.name}
         <span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:${ts.bg};color:${ts.color};font-weight:600;">${ts.label}</span>
       </td>
       <td style="padding:8px;color:#6b7280;white-space:nowrap;">${m.provider}</td>
@@ -961,33 +921,17 @@ function renderPricingTable() {
     tbody.appendChild(tr);
   });
 }
-
-function openPricingModal() {
-  renderPricingTable();
-  document.getElementById('pricing_modal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
-
-function closePricingModal() {
-  document.getElementById('pricing_modal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
+function openPricingModal() { renderPricingTable(); document.getElementById('pricing_modal').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+function closePricingModal() { document.getElementById('pricing_modal').style.display = 'none'; document.body.style.overflow = ''; }
 function openEditPricing() {
   const data = getPricingData();
   const sel = document.getElementById('edit_model_select');
   sel.innerHTML = '';
-  data.modelle.forEach((m, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = m.name + ' (' + m.provider + ')';
-    sel.appendChild(opt);
-  });
+  data.modelle.forEach((m, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = m.name + ' (' + m.provider + ')'; sel.appendChild(opt); });
   document.getElementById('edit_stand').value = data.stand || '';
   fillEditForm();
   document.getElementById('edit_pricing_modal').style.display = 'block';
 }
-
 function fillEditForm() {
   const data = getPricingData();
   const idx = parseInt(document.getElementById('edit_model_select').value);
@@ -999,7 +943,6 @@ function fillEditForm() {
   document.getElementById('edit_training').value = m.training || '';
   document.getElementById('edit_strengths').value = m.strengths || '';
 }
-
 function saveEditedModel() {
   const data = getPricingData();
   const idx = parseInt(document.getElementById('edit_model_select').value);
@@ -1017,39 +960,20 @@ function saveEditedModel() {
   renderPricingTable();
   alert('Preise gespeichert!');
 }
-
-function closeEditPricing() {
-  document.getElementById('edit_pricing_modal').style.display = 'none';
-}
-
+function closeEditPricing() { document.getElementById('edit_pricing_modal').style.display = 'none'; }
 function exportPricingCSV() {
   const data = getPricingData();
   const headers = ['Modell','Anbieter','Input $/M','Output $/M','Kontext','Training bis','Anwendungsgebiete','Tier'];
-  const rows = data.modelle.map(m => [
-    m.name, m.provider,
-    m.inputM !== null ? m.inputM : 'Abo',
-    m.outputM !== null ? m.outputM : '-',
-    m.context, m.training, m.strengths, m.tier
-  ]);
+  const rows = data.modelle.map(m => [m.name, m.provider, m.inputM !== null ? m.inputM : 'Abo', m.outputM !== null ? m.outputM : '-', m.context, m.training, m.strengths, m.tier]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`; a.click();
   URL.revokeObjectURL(url);
 }
+document.getElementById('pricing_modal').addEventListener('click', function(e) { if (e.target === this) closePricingModal(); });
+document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
 
-// Close modals on backdrop click
-document.getElementById('pricing_modal').addEventListener('click', function(e) {
-  if (e.target === this) closePricingModal();
-});
-document.getElementById('edit_pricing_modal').addEventListener('click', function(e) {
-  if (e.target === this) closeEditPricing();
-});
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
 renderSavedPrompts();
 </script>
 </body>
