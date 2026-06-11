@@ -66,7 +66,6 @@
 <body>
 <div class="container">
 
-  <!-- HERO -->
   <section class="hero">
     <h1>🧠 Smart Prompt Booster</h1>
     <p>Bessere Prompts. Bessere Resultate. Weniger Aufwand. Das Tool verwandelt unstrukturierte KI-Anfragen in klare, professionelle Prompts – inklusive Modell-Empfehlung, Webrecherche-Logik und wiederverwendbaren Vorlagen.</p>
@@ -79,7 +78,6 @@
 
   <div class="stack">
 
-    <!-- TEMPLATES -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">📂 Template / Vorlagen</h2>
@@ -112,7 +110,6 @@
       </div>
     </section>
 
-    <!-- AUFGABENDEFINITION -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">🧾 Aufgabendefinition</h2>
@@ -197,7 +194,6 @@
       </div>
     </section>
 
-    <!-- WEB SEARCH -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">🌐 Erweiterte Optionen – Web Search Einstellungen</h2>
@@ -233,11 +229,10 @@
       </div>
     </section>
 
-    <!-- ANHÄNGE -->
     <section class="card input-card">
       <div class="card-header">
         <h2 class="card-title">📎 Anhänge</h2>
-        <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt. Grössenschätzung basiert auf Textinhalt (Bilder nicht eingerechnet).</p>
+        <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt.</p>
       </div>
       <div class="card-body">
         <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
@@ -250,11 +245,9 @@
           </div>
         </div>
         <ul id="file_list" class="file-list muted" style="margin-top:8px;"></ul>
-        <p class="muted" style="margin-top:6px;font-size:0.82rem;">📌 Roadmap: Echte Token-Analyse per Textextraktion (ohne Bilder) geplant</p>
       </div>
     </section>
 
-    <!-- AKTIONEN -->
     <section class="card action-card">
       <div class="card-header">
         <h2 class="card-title">⚙️ Aktionen</h2>
@@ -273,7 +266,6 @@
       </div>
     </section>
 
-    <!-- OUTPUT -->
     <section class="card output" id="output_section" style="display:none;">
       <div class="card-header">
         <h2 class="card-title">🧠 Generierter Prompt</h2>
@@ -306,7 +298,6 @@
       </div>
     </section>
 
-    <!-- RÜCKFRAGE -->
     <section class="card output" id="clarification_section" style="display:none;">
       <div class="card-header">
         <h2 class="card-title">❓ Rückfrage</h2>
@@ -324,7 +315,6 @@
       </div>
     </section>
 
-    <!-- PROMPT SPEICHERN + GESPEICHERTE PROMPTS (kombiniert) -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">💾 Prompts speichern &amp; abrufen</h2>
@@ -449,106 +439,57 @@
 
 <script>
 const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer-BA';
+const API_KEY = 'SPB-2025-zhaw-secure-key'; // Header Auth Key
 
 // ── TEMPLATES ──────────────────────────────────────────────────────────────
 const TEMPLATES = {
   aktienanalyse: {
-    title: 'Analyse Sika Aktie vs. Wettbewerber',
-    category: 'Analyse / Beurteilung',
-    language: 'Deutsch',
-    webSearch: true,
+    title: 'Analyse Sika Aktie vs. Wettbewerber', category: 'Analyse / Beurteilung', language: 'Deutsch', webSearch: true,
     task: 'Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann, und wie sich Wachstum, Verschuldung, Free Cashflow, Dividendenpolitik und Share Buyback Politik im Vergleich zur Konkurrenz entwickeln. Ergänze KGV, EV/EBITDA Bewertung und ein Worst Case Szenario.',
-    role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung',
-    targetGroup: 'Privatinvestor mit Grundkenntnissen',
-    outputFormats: ['Vergleich', 'Tabelle', 'Zusammenfassung', 'Schlussfolgerung'],
-    tone: ['sachlich', 'Business', 'überzeugend'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 3 Monate',
-    sources: 'Geschäftsberichte, Investor Relations, Reuters'
+    role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung', targetGroup: 'Privatinvestor mit Grundkenntnissen',
+    outputFormats: ['Vergleich', 'Tabelle', 'Zusammenfassung', 'Schlussfolgerung'], tone: ['sachlich', 'Business', 'überzeugend'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Investor Relations, Reuters'
   },
   korrespondenz: {
-    title: 'Professionelles Anschreiben für Stellenbewerbung',
-    category: 'Korrespondenz / Kommunikation',
-    language: 'Deutsch',
-    webSearch: false,
-    task: 'Schreibe ein professionelles Anschreiben für eine Bewerbung als Senior Marketing Manager bei einem mittelgroßen Technologieunternehmen. Die Person hat 8 Jahre Erfahrung im B2B-Marketing, Kenntnisse in digitalen Kanälen und hat zuletzt ein Team von 5 Personen geführt. Ton soll selbstbewusst aber nicht arrogant sein.',
-    role: 'Erfahrener HR-Berater und Karriere-Coach',
-    targetGroup: 'HR-Manager und Entscheidungsträger im Unternehmen',
-    outputFormats: ['Bericht'],
-    tone: ['formell', 'überzeugend'],
-    webSearchMode: 'Keine Websuche',
-    freshness: 'Nicht relevant',
-    sources: ''
+    title: 'Professionelles Anschreiben für Stellenbewerbung', category: 'Korrespondenz / Kommunikation', language: 'Deutsch', webSearch: false,
+    task: 'Schreibe ein professionelles Anschreiben für eine Bewerbung als Senior Marketing Manager bei einem mittelgroßen Technologieunternehmen. Die Person hat 8 Jahre Erfahrung im B2B-Marketing, Kenntnisse in digitalen Kanälen und hat zuletzt ein Team von 5 Personen geführt.',
+    role: 'Erfahrener HR-Berater und Karriere-Coach', targetGroup: 'HR-Manager und Entscheidungsträger im Unternehmen',
+    outputFormats: ['Bericht'], tone: ['formell', 'überzeugend'], webSearchMode: 'Keine Websuche', freshness: 'Nicht relevant', sources: ''
   },
   bericht: {
-    title: 'Zusammenfassung Quartalsbericht Q1 2026',
-    category: 'Bericht / Zusammenfassung',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Erstelle eine prägnante Zusammenfassung eines Quartalsberichts für das Management. Fokus auf: Umsatzentwicklung, EBITDA-Marge, wichtigste Kostentreiber, Ausblick auf Q2 2026 und die drei wichtigsten strategischen Massnahmen des Quartals. Vergleich mit Vorjahresquartal und Markterwartungen.',
-    role: 'Erfahrener Business Analyst mit Fokus auf Finanzberichterstattung',
-    targetGroup: 'C-Level Management und Verwaltungsrat',
-    outputFormats: ['Bericht', 'Zusammenfassung', 'Stichpunkte'],
-    tone: ['sachlich', 'Business', 'formell'],
-    webSearchMode: 'Websuche falls nötig',
-    freshness: 'Letzte 3 Monate',
-    sources: 'Geschäftsberichte, Bloomberg, Reuters'
+    title: 'Zusammenfassung Quartalsbericht Q1 2026', category: 'Bericht / Zusammenfassung', language: 'Deutsch', webSearch: true,
+    task: 'Erstelle eine prägnante Zusammenfassung eines Quartalsberichts für das Management. Fokus auf: Umsatzentwicklung, EBITDA-Marge, wichtigste Kostentreiber, Ausblick auf Q2 2026 und die drei wichtigsten strategischen Massnahmen des Quartals.',
+    role: 'Erfahrener Business Analyst mit Fokus auf Finanzberichterstattung', targetGroup: 'C-Level Management und Verwaltungsrat',
+    outputFormats: ['Bericht', 'Zusammenfassung', 'Stichpunkte'], tone: ['sachlich', 'Business', 'formell'],
+    webSearchMode: 'Websuche falls nötig', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Bloomberg, Reuters'
   },
   recherche: {
-    title: 'Marktrecherche KI-gestützte Automatisierung 2026',
-    category: 'Recherche / Informationssuche',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Recherchiere den aktuellen Stand der KI-gestützten Prozessautomatisierung in mittelständischen Unternehmen in der DACH-Region. Untersuche: Welche Tools dominieren den Markt, wie hoch ist die Adoptionsrate, welche Branchen führen, was sind die grössten Hindernisse für kleinere Unternehmen, und welche Kosteneinsparungen werden realistisch erreicht.',
-    role: 'Marktforscher und Technologie-Analyst',
-    targetGroup: 'Geschäftsführer und IT-Entscheider in KMU',
-    outputFormats: ['Bericht', 'Tabelle', 'Zusammenfassung'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 6 Monate',
-    sources: 'Gartner, McKinsey, IDC, Heise, t3n'
+    title: 'Marktrecherche KI-gestützte Automatisierung 2026', category: 'Recherche / Informationssuche', language: 'Deutsch', webSearch: true,
+    task: 'Recherchiere den aktuellen Stand der KI-gestützten Prozessautomatisierung in mittelständischen Unternehmen in der DACH-Region.',
+    role: 'Marktforscher und Technologie-Analyst', targetGroup: 'Geschäftsführer und IT-Entscheider in KMU',
+    outputFormats: ['Bericht', 'Tabelle', 'Zusammenfassung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 6 Monate', sources: 'Gartner, McKinsey, IDC, Heise, t3n'
   },
   tabellenanalyse: {
-    title: 'Vergleichsanalyse Cloud-Anbieter AWS vs Azure vs GCP',
-    category: 'Strukturierte Ausgabe / Tabelle / Liste',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Erstelle eine detaillierte Vergleichstabelle der drei grössten Cloud-Anbieter AWS, Microsoft Azure und Google Cloud Platform. Vergleiche: Preismodelle für Standard-Workloads, verfügbare KI/ML-Services, Sicherheitszertifizierungen, DSGVO-Compliance, Support-Qualität und typische Migrationskosten. Ergänze eine Empfehlung je nach Unternehmensgrösse.',
-    role: 'Senior Cloud-Architekt und IT-Berater',
-    targetGroup: 'IT-Leiter und CTO in mittelständischen Unternehmen',
-    outputFormats: ['Tabelle', 'Vergleich', 'Schlussfolgerung'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 3 Monate',
-    sources: 'AWS, Microsoft, Google Cloud Dokumentation, Gartner'
+    title: 'Vergleichsanalyse Cloud-Anbieter AWS vs Azure vs GCP', category: 'Strukturierte Ausgabe / Tabelle / Liste', language: 'Deutsch', webSearch: true,
+    task: 'Erstelle eine detaillierte Vergleichstabelle der drei grössten Cloud-Anbieter AWS, Microsoft Azure und Google Cloud Platform.',
+    role: 'Senior Cloud-Architekt und IT-Berater', targetGroup: 'IT-Leiter und CTO in mittelständischen Unternehmen',
+    outputFormats: ['Tabelle', 'Vergleich', 'Schlussfolgerung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'AWS, Microsoft, Google Cloud Dokumentation, Gartner'
   },
   kreativ: {
-    title: 'Social Media Kampagne für nachhaltiges Produkt',
-    category: 'Kreativer Inhalt',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Entwickle eine kreative Social-Media-Kampagne für eine neue nachhaltige Produktlinie eines Schweizer Outdoor-Ausrüsters. Die Kampagne soll auf Instagram und LinkedIn funktionieren. Erstelle 5 Post-Ideen mit Bildkonzept, Caption und Hashtags. Ziel: Markenbewusstsein stärken und Kaufentscheidung beeinflussen. USP: 100% recycelte Materialien, faire Produktion in der Schweiz.',
-    role: 'Kreativdirektor mit Fokus auf nachhaltige Marken und Social Media',
-    targetGroup: 'Outdoor-Enthusiasten 25-45 Jahre, umweltbewusst, kaufkräftig',
-    outputFormats: ['Liste', 'Stichpunkte', 'Bericht'],
-    tone: ['freundlich', 'überzeugend', 'locker'],
-    webSearchMode: 'Websuche falls nötig',
-    freshness: 'Letzte 6 Monate',
-    sources: 'Instagram Trends, LinkedIn Marketing Solutions'
+    title: 'Social Media Kampagne für nachhaltiges Produkt', category: 'Kreativer Inhalt', language: 'Deutsch', webSearch: true,
+    task: 'Entwickle eine kreative Social-Media-Kampagne für eine neue nachhaltige Produktlinie eines Schweizer Outdoor-Ausrüsters.',
+    role: 'Kreativdirektor mit Fokus auf nachhaltige Marken und Social Media', targetGroup: 'Outdoor-Enthusiasten 25-45 Jahre, umweltbewusst, kaufkräftig',
+    outputFormats: ['Liste', 'Stichpunkte', 'Bericht'], tone: ['freundlich', 'überzeugend', 'locker'],
+    webSearchMode: 'Websuche falls nötig', freshness: 'Letzte 6 Monate', sources: 'Instagram Trends, LinkedIn Marketing Solutions'
   },
   bildgenerierung: {
-    title: 'Produktfoto-Optimierung und Hintergrundersatz',
-    category: 'Bildgenerierung / Bildbearbeitung',
-    language: 'Deutsch',
-    webSearch: false,
-    task: 'Ich möchte ein bestehendes Produktfoto (weisser Hintergrund) professionell aufwerten. Der Hintergrund soll durch einen stilvollen Lifestyle-Hintergrund ersetzt werden der zum Produkt passt (Premium-Küche für Kochzubehör). Das Produkt soll scharf bleiben, Beleuchtung soll angepasst werden und das Bild soll auf 4K-Auflösung hochskaliert werden für die Website.',
-    role: 'Professioneller Produktfotograf und Bildbearbeiter',
-    targetGroup: 'E-Commerce Manager und Marketing-Team',
-    outputFormats: ['Stichpunkte', 'Bericht'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Keine Websuche',
-    freshness: 'Nicht relevant',
-    sources: ''
+    title: 'Produktfoto-Optimierung und Hintergrundersatz', category: 'Bildgenerierung / Bildbearbeitung', language: 'Deutsch', webSearch: false,
+    task: 'Ich möchte ein bestehendes Produktfoto professionell aufwerten. Der Hintergrund soll durch einen stilvollen Lifestyle-Hintergrund ersetzt werden.',
+    role: 'Professioneller Produktfotograf und Bildbearbeiter', targetGroup: 'E-Commerce Manager und Marketing-Team',
+    outputFormats: ['Stichpunkte', 'Bericht'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Keine Websuche', freshness: 'Nicht relevant', sources: ''
   }
 };
 
@@ -562,12 +503,8 @@ function loadTemplate(key) {
   document.getElementById('task_description').value = t.task;
   document.getElementById('role').value = t.role;
   document.getElementById('target_group').value = t.targetGroup;
-  document.querySelectorAll('input[name="outputFormat"]').forEach(cb => {
-    cb.checked = t.outputFormats.includes(cb.value);
-  });
-  document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => {
-    cb.checked = t.tone.includes(cb.value);
-  });
+  document.querySelectorAll('input[name="outputFormat"]').forEach(cb => { cb.checked = t.outputFormats.includes(cb.value); });
+  document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => { cb.checked = t.tone.includes(cb.value); });
   setSelectValue('web_search_mode', t.webSearchMode);
   setSelectValue('freshness', t.freshness);
   document.getElementById('preferred_sources').value = t.sources;
@@ -576,28 +513,14 @@ function loadTemplate(key) {
 function setSelectValue(id, value) {
   const sel = document.getElementById(id);
   for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].text === value || sel.options[i].value === value) {
-      sel.selectedIndex = i; return;
-    }
+    if (sel.options[i].text === value || sel.options[i].value === value) { sel.selectedIndex = i; return; }
   }
 }
 
-// ── DEMO DATEN ──────────────────────────────────────────────────────────────
-function loadDemo() {
-  document.getElementById('template_select').value = 'aktienanalyse';
-  loadTemplate('aktienanalyse');
-}
+function loadDemo() { document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
 
-// ── CLEAR FORM ──────────────────────────────────────────────────────────────
 function clearForm() {
-  document.getElementById('title').value = '';
-  document.getElementById('task_description').value = '';
-  document.getElementById('role').value = '';
-  document.getElementById('target_group').value = '';
-  document.getElementById('preferred_sources').value = '';
-  document.getElementById('feedback').value = '';
-  document.getElementById('template_name').value = '';
-  document.getElementById('save_prompt_name').value = '';
+  ['title','task_description','role','target_group','preferred_sources','feedback','template_name','save_prompt_name'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('input[name="outputFormat"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('#tone_chips input').forEach(cb => cb.checked = false);
   document.getElementById('web_search_active').checked = false;
@@ -607,7 +530,6 @@ function clearForm() {
   document.getElementById('file_list').innerHTML = '';
 }
 
-// ── FILE LIST + BEURTEILUNG ───────────────────────────────────────────────────
 function updateFileList() {
   const files = document.getElementById('attachments').files;
   const list = document.getElementById('file_list');
@@ -622,16 +544,12 @@ function updateFileList() {
     list.appendChild(li);
     totalKB += f.size / 1024;
   });
-  // Schätzung: 1 KB Text ≈ 250 Tokens (ohne Bilder, konservativ)
   const estTokens = Math.round(totalKB * 250);
   const pct = ((estTokens / 128000) * 100).toFixed(1);
-  assessContent.innerHTML = `<strong>📎 ${files.length} Datei${files.length>1?'en':''}</strong> · ${totalKB.toFixed(0)} KB total<br>
-    ⚡ ~${estTokens.toLocaleString('de-CH')} Tokens geschätzt · ${pct}% des Kontextfensters<br>
-    <span style="font-size:0.78rem;opacity:0.8;">Schätzung basiert auf Dateigrösse (Bilder nicht eingerechnet)</span>`;
+  assessContent.innerHTML = `<strong>📎 ${files.length} Datei${files.length>1?'en':''}</strong> · ${totalKB.toFixed(0)} KB total<br>⚡ ~${estTokens.toLocaleString('de-CH')} Tokens geschätzt · ${pct}% des Kontextfensters`;
   assessment.style.display = 'block';
 }
 
-// ── FORMULARDATEN SAMMELN ────────────────────────────────────────────────────
 function collectFormData(userClarification = '') {
   const outputFormats = Array.from(document.querySelectorAll('input[name="outputFormat"]:checked')).map(cb => cb.value);
   const sonstigesText = document.getElementById('outputFormat_sonstiges_text').value;
@@ -659,18 +577,20 @@ function collectFormData(userClarification = '') {
   };
 }
 
-// ── N8N AUFRUFEN ─────────────────────────────────────────────────────────────
+// ── N8N AUFRUFEN – MIT HEADER AUTH ────────────────────────────────────────────
 async function callN8n(data) {
   const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY                  // ← Authentifizierung Header
+    },
     body: JSON.stringify(data)
   });
   if (!response.ok) throw new Error('n8n Fehler: ' + response.status);
   return await response.json();
 }
 
-// ── ARRAY PARSEN ─────────────────────────────────────────────────────────────
 function parseToArray(value) {
   if (!value) return [];
   if (Array.isArray(value)) return value;
@@ -682,7 +602,6 @@ function parseToArray(value) {
   return [];
 }
 
-// ── TOKEN SCHÄTZUNG ───────────────────────────────────────────────────────────
 function updateTokenEstimate(text) {
   const tokens = Math.round(text.length / 4);
   const percent = ((tokens / 128000) * 100).toFixed(1);
@@ -690,7 +609,6 @@ function updateTokenEstimate(text) {
   document.getElementById('token_percent').textContent = percent;
 }
 
-// ── OUTPUT ANZEIGEN ───────────────────────────────────────────────────────────
 function showResult(result) {
   document.getElementById('clarification_section').style.display = 'none';
   document.getElementById('output_section').style.display = 'block';
@@ -699,14 +617,10 @@ function showResult(result) {
   updateTokenEstimate(promptText);
   const modelsList = document.getElementById('output_models');
   modelsList.innerHTML = '';
-  parseToArray(result.recommendedModels).forEach(m => {
-    if (m) { const li = document.createElement('li'); li.textContent = m; modelsList.appendChild(li); }
-  });
+  parseToArray(result.recommendedModels).forEach(m => { if (m) { const li = document.createElement('li'); li.textContent = m; modelsList.appendChild(li); } });
   const optList = document.getElementById('output_optimizations');
   optList.innerHTML = '';
-  parseToArray(result.optimizations).forEach(o => {
-    if (o) { const li = document.createElement('li'); li.textContent = o; optList.appendChild(li); }
-  });
+  parseToArray(result.optimizations).forEach(o => { if (o) { const li = document.createElement('li'); li.textContent = o; optList.appendChild(li); } });
   document.getElementById('output_reason').textContent = (result.modelReason || '').replace(/\\n/g, '\n');
   document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
 }
@@ -718,7 +632,6 @@ function showClarification(question) {
   document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── PROMPT GENERIEREN ─────────────────────────────────────────────────────────
 async function generatePrompt(userClarification = '') {
   const btn = document.getElementById('btn_generate');
   const originalText = btn.textContent;
@@ -756,13 +669,11 @@ function copyToClipboard(elementId) {
   navigator.clipboard.writeText(text).then(() => alert('Prompt wurde kopiert!'));
 }
 
-// ── TEMPLATE SPEICHERN ────────────────────────────────────────────────────────
 function saveTemplate() {
   const name = document.getElementById('template_name').value.trim();
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
-  const data = collectFormData();
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
-  templates[name] = data;
+  templates[name] = collectFormData();
   localStorage.setItem('spb_templates', JSON.stringify(templates));
   alert('Vorlage "' + name + '" gespeichert!');
 }
@@ -772,29 +683,24 @@ function updateTemplate() {
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
   if (!templates[name]) { alert('Vorlage "' + name + '" nicht gefunden. Zuerst speichern.'); return; }
-  const data = collectFormData();
-  templates[name] = data;
+  templates[name] = collectFormData();
   localStorage.setItem('spb_templates', JSON.stringify(templates));
   alert('Vorlage "' + name + '" aktualisiert!');
 }
 
-// ── PROMPT SPEICHERN ──────────────────────────────────────────────────────────
 function savePrompt() {
   const name = document.getElementById('save_prompt_name').value.trim();
   if (!name) { alert('Bitte einen Namen für den Prompt eingeben.'); return; }
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
-  const entry = {
-    name: name,
-    date: new Date().toISOString(),
-    formData: collectFormData(),
+  prompts.push({
+    name: name, date: new Date().toISOString(), formData: collectFormData(),
     output: {
-      optimizedPrompt: document.getElementById('output_prompt').textContent,
+      optimizedPrompt: document.getElementById('output_prompt').value,
       recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
       optimizations: Array.from(document.querySelectorAll('#output_optimizations li')).map(li => li.textContent),
       modelReason: document.getElementById('output_reason').textContent
     }
-  };
-  prompts.push(entry);
+  });
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
   renderSavedPrompts();
   alert('Prompt "' + name + '" gespeichert!');
@@ -806,12 +712,6 @@ function updateSavedPrompt() {
   if (isNaN(idx)) { alert('Bitte zuerst einen Prompt auswählen.'); return; }
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
   prompts[idx].formData = collectFormData();
-  prompts[idx].output = {
-    optimizedPrompt: document.getElementById('output_prompt').textContent,
-    recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
-    optimizations: Array.from(document.querySelectorAll('#output_optimizations li')).map(li => li.textContent),
-    modelReason: document.getElementById('output_reason').textContent
-  };
   prompts[idx].date = new Date().toISOString();
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
   alert('Prompt aktualisiert!');
@@ -867,22 +767,16 @@ function renderSavedPrompts() {
   const select = document.getElementById('saved_prompts_select');
   select.innerHTML = '';
   if (indexed.length === 0) {
-    const opt = document.createElement('option');
-    opt.text = 'Keine gespeicherten Prompts';
-    opt.value = '';
-    select.appendChild(opt);
-    return;
+    const opt = document.createElement('option'); opt.text = 'Keine gespeicherten Prompts'; opt.value = ''; select.appendChild(opt); return;
   }
   indexed.forEach(p => {
     const opt = document.createElement('option');
-    const date = new Date(p.date).toLocaleDateString('de-CH');
-    opt.text = p.name + ' (' + date + ')';
+    opt.text = p.name + ' (' + new Date(p.date).toLocaleDateString('de-CH') + ')';
     opt.value = p.originalIndex;
     select.appendChild(opt);
   });
 }
 
-// ── SONSTIGES TOGGLE ─────────────────────────────────────────────────────────
 document.getElementById('chip_sonstiges').addEventListener('change', function() {
   document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
 });
@@ -905,31 +799,22 @@ const DEFAULT_MODELS = [
 ];
 
 function getPricingData() {
-  try {
-    const stored = localStorage.getItem('spb_pricing');
-    if (stored) return JSON.parse(stored);
-  } catch(e) {}
+  try { const s = localStorage.getItem('spb_pricing'); if (s) return JSON.parse(s); } catch(e) {}
   return { stand: 'Juni 2026', naechste: 'Juli 2026', modelle: DEFAULT_MODELS };
 }
-
-function savePricingData(data) {
-  localStorage.setItem('spb_pricing', JSON.stringify(data));
-}
-
+function savePricingData(data) { localStorage.setItem('spb_pricing', JSON.stringify(data)); }
 function fmtPrice(val) {
   if (val === null || val === undefined) return 'Abo';
   const p = val / 100;
   if (p < 0.001) return '<$0.001';
   return '$' + p.toFixed(p < 0.01 ? 4 : p < 0.1 ? 3 : 2);
 }
-
 const TIER_STYLE = {
   premium: { bg:'#EEF4FF', color:'#1D4ED8', label:'Premium' },
   mid:     { bg:'#F0FDF4', color:'#166534', label:'Standard' },
   budget:  { bg:'#FEF9E7', color:'#92400E', label:'Budget' },
   special: { bg:'#F5F3FF', color:'#5B21B6', label:'Spezial' },
 };
-
 function renderPricingTable() {
   const data = getPricingData();
   document.getElementById('pricing_stand_text').textContent = `Stand: ${data.stand} · Bitte monatlich aktualisieren`;
@@ -941,48 +826,27 @@ function renderPricingTable() {
     const tr = document.createElement('tr');
     tr.style.background = i % 2 === 0 ? 'white' : '#f8fafc';
     tr.style.borderBottom = '1px solid #e2e8f0';
-    tr.innerHTML = `
-      <td style="padding:8px 12px;font-weight:600;white-space:nowrap;">
-        ${m.name}
-        <span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:${ts.bg};color:${ts.color};font-weight:600;">${ts.label}</span>
-      </td>
+    tr.innerHTML = `<td style="padding:8px 12px;font-weight:600;white-space:nowrap;">${m.name}<span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:${ts.bg};color:${ts.color};font-weight:600;">${ts.label}</span></td>
       <td style="padding:8px;color:#6b7280;white-space:nowrap;">${m.provider}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.inputM)}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.outputM)}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap;color:#6b7280;">${m.context}</td>
       <td style="padding:8px;text-align:center;white-space:nowrap;font-size:0.78rem;color:#6b7280;">${m.training}</td>
-      <td style="padding:8px 12px;color:#6b7280;font-size:0.8rem;">${m.strengths}</td>
-    `;
+      <td style="padding:8px 12px;color:#6b7280;font-size:0.8rem;">${m.strengths}</td>`;
     tbody.appendChild(tr);
   });
 }
-
-function openPricingModal() {
-  renderPricingTable();
-  document.getElementById('pricing_modal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
-
-function closePricingModal() {
-  document.getElementById('pricing_modal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
+function openPricingModal() { renderPricingTable(); document.getElementById('pricing_modal').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+function closePricingModal() { document.getElementById('pricing_modal').style.display = 'none'; document.body.style.overflow = ''; }
 function openEditPricing() {
   const data = getPricingData();
   const sel = document.getElementById('edit_model_select');
   sel.innerHTML = '';
-  data.modelle.forEach((m, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = m.name + ' (' + m.provider + ')';
-    sel.appendChild(opt);
-  });
+  data.modelle.forEach((m, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = m.name + ' (' + m.provider + ')'; sel.appendChild(opt); });
   document.getElementById('edit_stand').value = data.stand || '';
   fillEditForm();
   document.getElementById('edit_pricing_modal').style.display = 'block';
 }
-
 function fillEditForm() {
   const data = getPricingData();
   const idx = parseInt(document.getElementById('edit_model_select').value);
@@ -994,7 +858,6 @@ function fillEditForm() {
   document.getElementById('edit_training').value = m.training || '';
   document.getElementById('edit_strengths').value = m.strengths || '';
 }
-
 function saveEditedModel() {
   const data = getPricingData();
   const idx = parseInt(document.getElementById('edit_model_select').value);
@@ -1012,39 +875,20 @@ function saveEditedModel() {
   renderPricingTable();
   alert('Preise gespeichert!');
 }
-
-function closeEditPricing() {
-  document.getElementById('edit_pricing_modal').style.display = 'none';
-}
-
+function closeEditPricing() { document.getElementById('edit_pricing_modal').style.display = 'none'; }
 function exportPricingCSV() {
   const data = getPricingData();
   const headers = ['Modell','Anbieter','Input $/M','Output $/M','Kontext','Training bis','Anwendungsgebiete','Tier'];
-  const rows = data.modelle.map(m => [
-    m.name, m.provider,
-    m.inputM !== null ? m.inputM : 'Abo',
-    m.outputM !== null ? m.outputM : '-',
-    m.context, m.training, m.strengths, m.tier
-  ]);
+  const rows = data.modelle.map(m => [m.name, m.provider, m.inputM !== null ? m.inputM : 'Abo', m.outputM !== null ? m.outputM : '-', m.context, m.training, m.strengths, m.tier]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`; a.click();
   URL.revokeObjectURL(url);
 }
+document.getElementById('pricing_modal').addEventListener('click', function(e) { if (e.target === this) closePricingModal(); });
+document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
 
-// Close modals on backdrop click
-document.getElementById('pricing_modal').addEventListener('click', function(e) {
-  if (e.target === this) closePricingModal();
-});
-document.getElementById('edit_pricing_modal').addEventListener('click', function(e) {
-  if (e.target === this) closeEditPricing();
-});
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
 renderSavedPrompts();
 </script>
 </body>
