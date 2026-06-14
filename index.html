@@ -268,7 +268,7 @@
           <label for="feedback">Feedback / Anpassungen</label>
           <textarea id="feedback" placeholder="z. B. Fokus stärker auf Bewertung und Free Cashflow legen, Wettbewerber XYZ ergänzen..."></textarea>
         </div>
-        <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="generatePrompt()">🔄 Prompt erneut optimieren</button>
+        <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
       </div>
     </section>
 
@@ -283,7 +283,7 @@
           <textarea id="output_prompt" class="prompt-preview" style="min-height:300px;width:100%;border:1px dashed #bfd1ef;border-radius:12px;padding:12px;background:#fafcff;resize:vertical;"></textarea>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
             <button class="btn btn-muted" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
-            <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="generatePrompt()">🔄 Prompt erneut optimieren</button>
+            <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
           </div>
         </div>
         <div class="token-box" id="token_box">
@@ -714,6 +714,62 @@ async function generatePrompt(userClarification = '') {
     const r = Array.isArray(result) ? result[0] : result;
     if (r.type === 'clarification' && r.question) { showClarification(r.question); }
     else { showResult(r); }
+  } catch (err) {
+    document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+
+// ── PROMPT ERNEUT OPTIMIEREN – NUR Output + Feedback, KEINE Formularfelder ──
+async function reoptimizePrompt() {
+  const previousPrompt = document.getElementById('output_prompt').value || '';
+  const feedback = document.getElementById('feedback').value || '';
+
+  if (!previousPrompt || previousPrompt.startsWith('⏳') || previousPrompt.startsWith('❌')) {
+    alert('Bitte zuerst einen Prompt generieren.');
+    return;
+  }
+
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird verarbeitet...';
+  document.getElementById('output_prompt').value = '⏳ Prompt wird optimiert...';
+  document.getElementById('output_models').innerHTML = '';
+  document.getElementById('output_optimizations').innerHTML = '';
+  document.getElementById('output_reason').textContent = '';
+
+  // NUR previousPrompt und feedback senden – KEINE Formularfelder
+  const data = {
+    titel: document.getElementById('title').value,
+    kategorie: document.getElementById('category').value,
+    sprache: document.getElementById('language').value,
+    aufgabe: '',
+    rolle: '',
+    zielgruppe: '',
+    outputFormat: '',
+    tonalitaet: '',
+    webSearch: document.getElementById('web_search_active').checked ? 'true' : 'false',
+    webSearchMode: document.getElementById('web_search_mode').value,
+    aktualitaet: document.getElementById('freshness').value,
+    preferredSources: document.getElementById('preferred_sources').value,
+    feedback: feedback,
+    userClarification: '',
+    attachments: '',
+    previousPrompt: previousPrompt
+  };
+
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+    if (r.type === 'clarification' && r.question) {
+      showClarification(r.question);
+    } else {
+      showResult(r);
+    }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
   } finally {
