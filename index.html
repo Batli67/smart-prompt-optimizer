@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- saved from url=(0049)https://batli67.github.io/smart-prompt-optimizer/ -->
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Prompt Booster</title>
   <style>
     :root {
@@ -105,7 +105,7 @@
           </div>
           <div class="field">
             <label for="template_name">Neuer Template-Name</label>
-            <input id="template_name" type="text" placeholder="z. B. Aktienanalyse Standard mit Peers" />
+            <input id="template_name" type="text" placeholder="z. B. Aktienanalyse Standard mit Peers">
           </div>
         </div>
         <div class="actions">
@@ -123,7 +123,7 @@
       <div class="card-body">
         <div class="field">
           <label for="title">Titel</label>
-          <input id="title" type="text" placeholder="z. B. Analyse Sika Aktie vs. Wettbewerber" />
+          <input id="title" type="text" placeholder="z. B. Analyse Sika Aktie vs. Wettbewerber">
         </div>
         <div class="grid-2">
           <div class="field">
@@ -132,7 +132,7 @@
               <option>Korrespondenz / Kommunikation</option>
               <option>Bericht / Zusammenfassung</option>
               <option>Recherche / Informationssuche</option>
-              <option selected>Analyse / Beurteilung</option>
+              <option selected="">Analyse / Beurteilung</option>
               <option>Strukturierte Ausgabe / Tabelle / Liste</option>
               <option>Kreativer Inhalt</option>
               <option>Bildgenerierung / Bildbearbeitung</option>
@@ -141,7 +141,7 @@
           <div class="field">
             <label for="language">Sprache</label>
             <select id="language">
-              <option selected>Deutsch</option>
+              <option selected="">Deutsch</option>
               <option>Englisch</option>
               <option>Französisch</option>
               <option>Italienisch</option>
@@ -149,7 +149,7 @@
           </div>
         </div>
         <label class="toggle" id="web_search_toggle">
-          <input type="checkbox" id="web_search_active" checked />
+          <input type="checkbox" id="web_search_active" checked="">
           🌐 Prompt Content Search on Internet / WEB explizit aktivieren
         </label>
         <div class="field">
@@ -159,41 +159,41 @@
         <div class="grid-2">
           <div class="field">
             <label for="role">Rolle</label>
-            <input id="role" type="text" placeholder="z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung" />
+            <input id="role" type="text" placeholder="z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung">
           </div>
           <div class="field">
             <label for="target_group">Zielgruppe</label>
-            <input id="target_group" type="text" placeholder="z. B. Privatinvestor, CEO, Kunde, Mitarbeiter" />
+            <input id="target_group" type="text" placeholder="z. B. Privatinvestor, CEO, Kunde, Mitarbeiter">
           </div>
         </div>
         <div class="field">
           <label>Ausgabe Format <span class="hint">[Mehrfachauswahl]</span></label>
           <div class="chips">
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext" /> Freitext</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte" /> Stichpunkte</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle" /> Tabelle</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht" /> Bericht</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail" /> E-Mail</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich" /> Vergleich</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Liste" /> Liste</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung" /> Zusammenfassung</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung" /> Schlussfolgerung</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges" /> Sonstiges</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext"> Freitext</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte"> Stichpunkte</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle"> Tabelle</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht"> Bericht</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail"> E-Mail</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich"> Vergleich</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Liste"> Liste</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung"> Zusammenfassung</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung"> Schlussfolgerung</label>
+            <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges"> Sonstiges</label>
           </div>
           <div id="sonstiges_container" style="display:none;margin-top:10px;">
-            <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben..." />
+            <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben...">
           </div>
         </div>
         <div class="field">
           <label>Tonalität <span class="hint">[Mehrfachauswahl]</span></label>
           <div class="chips" id="tone_chips">
-            <label class="chip"><input type="checkbox" value="sachlich" /> sachlich</label>
-            <label class="chip"><input type="checkbox" value="formell" /> formell</label>
-            <label class="chip"><input type="checkbox" value="freundlich" /> freundlich</label>
-            <label class="chip"><input type="checkbox" value="kollegial" /> kollegial</label>
-            <label class="chip"><input type="checkbox" value="Business" /> Business</label>
-            <label class="chip"><input type="checkbox" value="locker" /> locker</label>
-            <label class="chip"><input type="checkbox" value="überzeugend" /> überzeugend</label>
+            <label class="chip"><input type="checkbox" value="sachlich"> sachlich</label>
+            <label class="chip"><input type="checkbox" value="formell"> formell</label>
+            <label class="chip"><input type="checkbox" value="freundlich"> freundlich</label>
+            <label class="chip"><input type="checkbox" value="kollegial"> kollegial</label>
+            <label class="chip"><input type="checkbox" value="Business"> Business</label>
+            <label class="chip"><input type="checkbox" value="locker"> locker</label>
+            <label class="chip"><input type="checkbox" value="überzeugend"> überzeugend</label>
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@
             <select id="web_search_mode">
               <option>Keine Websuche</option>
               <option>Websuche falls nötig</option>
-              <option selected>Websuche zwingend</option>
+              <option selected="">Websuche zwingend</option>
             </select>
           </div>
           <div class="field">
@@ -220,7 +220,7 @@
               <option>Heute</option>
               <option>Diese Woche</option>
               <option>Letzter Monat</option>
-              <option selected>Letzte 3 Monate</option>
+              <option selected="">Letzte 3 Monate</option>
               <option>Seit Jahresbeginn</option>
               <option>Letzte 12 Monate</option>
               <option>Nicht relevant</option>
@@ -228,7 +228,7 @@
           </div>
           <div class="field">
             <label for="preferred_sources">Bevorzugte Quellen</label>
-            <input id="preferred_sources" type="text" placeholder="z. B. Geschäftsberichte, Reuters, sec.gov" />
+            <input id="preferred_sources" type="text" placeholder="z. B. Geschäftsberichte, Reuters, sec.gov">
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@
         <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
           <div class="field" style="flex:1;min-width:220px;margin-bottom:0;">
             <label for="attachments">Dateien hochladen</label>
-            <input id="attachments" type="file" multiple onchange="updateFileList()" />
+            <input id="attachments" type="file" multiple="" onchange="updateFileList()">
           </div>
           <div id="file_assessment" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-size:0.88rem;color:#166534;min-width:260px;">
             <div id="file_assessment_content"></div>
@@ -261,7 +261,7 @@
       </div>
       <div class="card-body">
         <div class="actions">
-          <button class="btn btn-muted" onclick="checkInputs()">🔍 Eingaben prüfen / erneut prüfen</button>
+          <button class="btn btn-muted" onclick="generatePrompt()">🔍 Eingaben prüfen / erneut prüfen</button>
           <button class="btn btn-green" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
@@ -282,7 +282,7 @@
           <h4>📄 Optimierter Prompt <span class="hint" style="font-weight:400;">– direkt bearbeitbar</span></h4>
           <textarea id="output_prompt" class="prompt-preview" style="min-height:300px;width:100%;border:1px dashed #bfd1ef;border-radius:12px;padding:12px;background:#fafcff;resize:vertical;"></textarea>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-            <button class="btn btn-muted" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
+            <button class="btn btn-muted" onclick="copyToClipboard(&#39;output_prompt&#39;)">📋 Prompt kopieren</button>
             <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
           </div>
         </div>
@@ -316,7 +316,7 @@
             <label for="user_clarification">Deine Antwort</label>
             <textarea id="user_clarification" placeholder="Deine Antwort hier eingeben..."></textarea>
           </div>
-          <button class="btn btn-action" onclick="submitClarification()">Antwort senden & Prompt generieren</button>
+          <button class="btn btn-action" onclick="submitClarification()">Antwort senden &amp; Prompt generieren</button>
         </div>
       </div>
     </section>
@@ -330,7 +330,7 @@
         <div class="save-row" style="margin-bottom:16px;">
           <div class="field" style="margin-bottom:0;">
             <label for="save_prompt_name">Name für diesen Prompt</label>
-            <input id="save_prompt_name" type="text" placeholder="z. B. Sika Aktienanalyse mit Peers Juni 2026" />
+            <input id="save_prompt_name" type="text" placeholder="z. B. Sika Aktienanalyse mit Peers Juni 2026">
           </div>
           <button class="btn btn-action" onclick="savePrompt()">💾 Speichern</button>
           <button class="btn btn-muted" onclick="updateSavedPrompt()">🔄 Aktualisieren</button>
@@ -338,11 +338,11 @@
         <div style="border-top:1px solid #eef2f7;padding-top:14px;">
           <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:0.9rem;flex-wrap:wrap;">
             <span style="font-weight:600;color:#6b7280;">Sortieren:</span>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="newest" checked onchange="renderSavedPrompts()" /> Neueste zuerst</label>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="alpha" onchange="renderSavedPrompts()" /> Alphabetisch</label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="newest" checked="" onchange="renderSavedPrompts()"> Neueste zuerst</label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="alpha" onchange="renderSavedPrompts()"> Alphabetisch</label>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <select id="saved_prompts_select" style="flex:1;min-width:200px;"></select>
+            <select id="saved_prompts_select" style="flex:1;min-width:200px;"><option value="">Keine gespeicherten Prompts</option></select>
             <button class="btn btn-action" onclick="loadSavedPrompt()">📂 Prompt öffnen</button>
             <button class="btn btn-danger" onclick="deleteSavedPrompt()">🗑️ Löschen</button>
           </div>
@@ -411,30 +411,30 @@
     <div class="grid-2">
       <div class="field">
         <label>Input $ pro Million Tokens</label>
-        <input type="text" id="edit_input_price" placeholder="z. B. 5.00" />
+        <input type="text" id="edit_input_price" placeholder="z. B. 5.00">
       </div>
       <div class="field">
         <label>Output $ pro Million Tokens</label>
-        <input type="text" id="edit_output_price" placeholder="z. B. 30.00" />
+        <input type="text" id="edit_output_price" placeholder="z. B. 30.00">
       </div>
     </div>
     <div class="grid-2">
       <div class="field">
         <label>Kontextfenster</label>
-        <input type="text" id="edit_context" placeholder="z. B. 128k" />
+        <input type="text" id="edit_context" placeholder="z. B. 128k">
       </div>
       <div class="field">
         <label>Training bis</label>
-        <input type="text" id="edit_training" placeholder="z. B. Apr 2025" />
+        <input type="text" id="edit_training" placeholder="z. B. Apr 2025">
       </div>
     </div>
     <div class="field">
       <label>Anwendungsgebiete</label>
-      <input type="text" id="edit_strengths" placeholder="z. B. Finanzanalyse, Coding, Reasoning" />
+      <input type="text" id="edit_strengths" placeholder="z. B. Finanzanalyse, Coding, Reasoning">
     </div>
     <div class="field">
       <label>Stand (Monat Jahr)</label>
-      <input type="text" id="edit_stand" placeholder="z. B. Juli 2026" />
+      <input type="text" id="edit_stand" placeholder="z. B. Juli 2026">
     </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
       <button class="btn btn-action" onclick="saveEditedModel()">💾 Speichern</button>
@@ -573,11 +573,9 @@ function setSelectValue(id, value) {
   }
 }
 
-function loadDemo() {
-  setPostGenerateMode(false); document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
+function loadDemo() { document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
 
 function clearForm() {
-  setPostGenerateMode(false);
   document.getElementById('title').value = '';
   document.getElementById('task_description').value = '';
   document.getElementById('role').value = '';
@@ -715,13 +713,7 @@ async function generatePrompt(userClarification = '') {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     if (r.type === 'clarification' && r.question) { showClarification(r.question); }
-    else {
-      showResult(r);
-      // Feedback-Feld leeren nach erfolgreichem Prompt generieren
-      document.getElementById('feedback').value = '';
-      // Button-States umschalten
-      setPostGenerateMode(true);
-    }
+    else { showResult(r); }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
   } finally {
@@ -730,141 +722,6 @@ async function generatePrompt(userClarification = '') {
   }
 }
 
-
-
-
-// ── BUTTON-STATES NACH PROMPT GENERIEREN ──────────────────────────────────────
-function setPostGenerateMode(generated) {
-  try {
-    const btnGenerate = document.getElementById('btn_generate');
-    if (!btnGenerate) return; // Sicherheitscheck
-
-    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
-    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
-
-    if (generated) {
-      btnGenerate.disabled = true;
-      btnGenerate.style.opacity = '0.45';
-      btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze "Prompt erneut optimieren".';
-
-      if (btnReoptimizeAction) {
-        btnReoptimizeAction.style.background = '#16a34a';
-        btnReoptimizeAction.style.color = 'white';
-        btnReoptimizeAction.style.border = '2px solid #15803d';
-        btnReoptimizeAction.style.fontWeight = '700';
-      }
-      if (btnReoptimizeOutput) {
-        btnReoptimizeOutput.style.background = '#16a34a';
-        btnReoptimizeOutput.style.color = 'white';
-        btnReoptimizeOutput.style.border = '2px solid #15803d';
-        btnReoptimizeOutput.style.fontWeight = '700';
-      }
-    } else {
-      btnGenerate.disabled = false;
-      btnGenerate.style.opacity = '';
-      btnGenerate.style.cursor = '';
-      btnGenerate.title = '';
-
-      if (btnReoptimizeAction) {
-        btnReoptimizeAction.style.background = '';
-        btnReoptimizeAction.style.color = '';
-        btnReoptimizeAction.style.border = '';
-        btnReoptimizeAction.style.fontWeight = '';
-      }
-      if (btnReoptimizeOutput) {
-        btnReoptimizeOutput.style.background = '';
-        btnReoptimizeOutput.style.color = '';
-        btnReoptimizeOutput.style.border = '';
-        btnReoptimizeOutput.style.fontWeight = '';
-      }
-    }
-  } catch(e) {
-    console.warn('setPostGenerateMode Fehler:', e);
-  }
-}
-
-// ── EINGABEN PRUEFEN – LLM verbessert Aufgabenbeschrieb und schreibt ins Feedback-Feld ──
-async function checkInputs() {
-  const btn = event.currentTarget;
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '⏳ Wird analysiert...';
-
-  const feedbackField = document.getElementById('feedback');
-  const taskField = document.getElementById('task_description');
-  const originalTask = taskField ? taskField.value : document.getElementById('aufgabe') ? document.getElementById('aufgabe').value : '';
-
-  // Prüfe ob bereits Inhalt im Feedback-Feld steht
-  const existingContent = feedbackField.value.trim();
-
-  const data = collectFormData();
-  data.mode = 'check'; // Signal an n8n: Aufgabenbeschrieb verbessern
-
-  try {
-    const result = await callN8n(data);
-    const r = Array.isArray(result) ? result[0] : result;
-
-    let improvedTask = '';
-    if (r.checkSuggestions) {
-      improvedTask = r.checkSuggestions;
-    } else if (r.type === 'clarification' && r.question) {
-      improvedTask = r.question;
-    } else {
-      improvedTask = 'Die Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.';
-    }
-
-    // Strukturierten Text aufbauen
-    let newContent = '';
-    if (!existingContent) {
-      // Erster Durchlauf: Bestehender + Verbesserter Aufgabenbeschrieb
-      newContent =
-        'Bestehender Aufgabenbeschrieb:
-' +
-        originalTask + '
-
-' +
-        'Verbesserter Aufgabenbeschrieb:
-' +
-        improvedTask + '
-
-' +
-        '→ Kopiere den verbesserten Aufgabenbeschrieb in das Task Description Feld oben, lösche dieses Feedback-Feld und drücke "Prompt generieren".';
-    } else {
-      // Weiterer Durchlauf: Trennlinie + neuer verbesserter Beschrieb
-      newContent =
-        existingContent + '
-
-' +
-        '----------------------------------------
-
-' +
-        'Verbesserter Aufgabenbeschrieb:
-' +
-        improvedTask + '
-
-' +
-        '→ Kopiere den verbesserten Aufgabenbeschrieb in das Task Description Feld oben, lösche dieses Feedback-Feld und drücke "Prompt generieren".';
-    }
-
-    feedbackField.value = newContent;
-
-    // Scrollen zum Feedback-Feld
-    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    feedbackField.focus();
-
-  } catch (err) {
-    feedbackField.value = (existingContent ? existingContent + '
-
-----------------------------------------
-
-' : '') +
-      '❌ Fehler bei der Prüfung: ' + err.message;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
-}
 
 // ── PROMPT ERNEUT OPTIMIEREN – NUR Output + Feedback, KEINE Formularfelder ──
 async function reoptimizePrompt() {
@@ -1175,5 +1032,6 @@ document.getElementById('edit_pricing_modal').addEventListener('click', function
 
 renderSavedPrompts();
 </script>
-</body>
-</html>
+
+
+</body></html>
