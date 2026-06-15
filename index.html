@@ -261,7 +261,7 @@
       </div>
       <div class="card-body">
         <div class="actions">
-          <button class="btn btn-muted" onclick="generatePrompt()">🔍 Eingaben prüfen / erneut prüfen</button>
+          <button class="btn btn-muted" onclick="checkInputs()">🔍 Eingaben prüfen / erneut prüfen</button>
           <button class="btn btn-green" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
@@ -573,9 +573,11 @@ function setSelectValue(id, value) {
   }
 }
 
-function loadDemo() { document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
+function loadDemo() {
+  setPostGenerateMode(false); document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
 
 function clearForm() {
+  setPostGenerateMode(false);
   document.getElementById('title').value = '';
   document.getElementById('task_description').value = '';
   document.getElementById('role').value = '';
@@ -713,7 +715,13 @@ async function generatePrompt(userClarification = '') {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     if (r.type === 'clarification' && r.question) { showClarification(r.question); }
-    else { showResult(r); }
+    else {
+      showResult(r);
+      // Feedback-Feld leeren nach erfolgreichem Prompt generieren
+      document.getElementById('feedback').value = '';
+      // Button-States umschalten
+      setPostGenerateMode(true);
+    }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
   } finally {
@@ -722,6 +730,139 @@ async function generatePrompt(userClarification = '') {
   }
 }
 
+
+
+
+// ── BUTTON-STATES NACH PROMPT GENERIEREN ──────────────────────────────────────
+function setPostGenerateMode(generated) {
+  const btnGenerate = document.getElementById('btn_generate');
+  const btnCheck = document.querySelector('button[onclick="checkInputs()"]');
+  const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
+  const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
+
+  if (generated) {
+    // Prompt wurde generiert → "Prompt generieren" ausgrauen
+    btnGenerate.disabled = true;
+    btnGenerate.style.opacity = '0.45';
+    btnGenerate.style.cursor = 'not-allowed';
+    btnGenerate.title = 'Prompt wurde bereits generiert. Nutze "Prompt erneut optimieren".';
+
+    // "Prompt erneut optimieren" grün hervorheben
+    if (btnReoptimizeAction) {
+      btnReoptimizeAction.style.background = 'var(--success, #16a34a)';
+      btnReoptimizeAction.style.color = 'white';
+      btnReoptimizeAction.style.border = '2px solid #15803d';
+      btnReoptimizeAction.style.fontWeight = '700';
+    }
+    if (btnReoptimizeOutput) {
+      btnReoptimizeOutput.style.background = 'var(--success, #16a34a)';
+      btnReoptimizeOutput.style.color = 'white';
+      btnReoptimizeOutput.style.border = '2px solid #15803d';
+      btnReoptimizeOutput.style.fontWeight = '700';
+    }
+  } else {
+    // Reset → alles zurück zum Ausgangszustand
+    btnGenerate.disabled = false;
+    btnGenerate.style.opacity = '';
+    btnGenerate.style.cursor = '';
+    btnGenerate.title = '';
+
+    if (btnReoptimizeAction) {
+      btnReoptimizeAction.style.background = '';
+      btnReoptimizeAction.style.color = '';
+      btnReoptimizeAction.style.border = '';
+      btnReoptimizeAction.style.fontWeight = '';
+    }
+    if (btnReoptimizeOutput) {
+      btnReoptimizeOutput.style.background = '';
+      btnReoptimizeOutput.style.color = '';
+      btnReoptimizeOutput.style.border = '';
+      btnReoptimizeOutput.style.fontWeight = '';
+    }
+  }
+}
+
+// ── EINGABEN PRUEFEN – LLM verbessert Aufgabenbeschrieb und schreibt ins Feedback-Feld ──
+async function checkInputs() {
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird analysiert...';
+
+  const feedbackField = document.getElementById('feedback');
+  const taskField = document.getElementById('task_description');
+  const originalTask = taskField ? taskField.value : document.getElementById('aufgabe') ? document.getElementById('aufgabe').value : '';
+
+  // Prüfe ob bereits Inhalt im Feedback-Feld steht
+  const existingContent = feedbackField.value.trim();
+
+  const data = collectFormData();
+  data.mode = 'check'; // Signal an n8n: Aufgabenbeschrieb verbessern
+
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+
+    let improvedTask = '';
+    if (r.checkSuggestions) {
+      improvedTask = r.checkSuggestions;
+    } else if (r.type === 'clarification' && r.question) {
+      improvedTask = r.question;
+    } else {
+      improvedTask = 'Die Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.';
+    }
+
+    // Strukturierten Text aufbauen
+    let newContent = '';
+    if (!existingContent) {
+      // Erster Durchlauf: Bestehender + Verbesserter Aufgabenbeschrieb
+      newContent =
+        'Bestehender Aufgabenbeschrieb:
+' +
+        originalTask + '
+
+' +
+        'Verbesserter Aufgabenbeschrieb:
+' +
+        improvedTask + '
+
+' +
+        '→ Kopiere den verbesserten Aufgabenbeschrieb in das Task Description Feld oben, lösche dieses Feedback-Feld und drücke "Prompt generieren".';
+    } else {
+      // Weiterer Durchlauf: Trennlinie + neuer verbesserter Beschrieb
+      newContent =
+        existingContent + '
+
+' +
+        '----------------------------------------
+
+' +
+        'Verbesserter Aufgabenbeschrieb:
+' +
+        improvedTask + '
+
+' +
+        '→ Kopiere den verbesserten Aufgabenbeschrieb in das Task Description Feld oben, lösche dieses Feedback-Feld und drücke "Prompt generieren".';
+    }
+
+    feedbackField.value = newContent;
+
+    // Scrollen zum Feedback-Feld
+    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    feedbackField.focus();
+
+  } catch (err) {
+    feedbackField.value = (existingContent ? existingContent + '
+
+----------------------------------------
+
+' : '') +
+      '❌ Fehler bei der Prüfung: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
 
 // ── PROMPT ERNEUT OPTIMIEREN – NUR Output + Feedback, KEINE Formularfelder ──
 async function reoptimizePrompt() {
