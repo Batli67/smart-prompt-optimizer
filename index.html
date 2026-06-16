@@ -261,7 +261,7 @@
       </div>
       <div class="card-body">
         <div class="actions">
-          <button class="btn btn-muted" onclick="checkInputs()">🔍 Eingaben prüfen / erneut prüfen</button>
+          <button class="btn btn-action" id="btn_check" onclick="checkInputs()" style="background:#2563eb;color:white;border:2px solid #1d4ed8;">🔍 Eingaben prüfen / erneut prüfen</button>
           <button class="btn btn-green" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
@@ -721,6 +721,7 @@ async function generatePrompt(userClarification = '') {
     }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
+    setPostGenerateMode(false);
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
@@ -839,20 +840,31 @@ function setPostGenerateMode(generated) {
   try {
     const btnGenerate = document.getElementById('btn_generate');
     if (!btnGenerate) return;
+    const btnCheck = document.getElementById('btn_check');
     const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
     const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
     if (generated) {
       btnGenerate.disabled = true;
-      btnGenerate.style.opacity = '0.45';
+      btnGenerate.setAttribute('data-locked', '1');
+      btnGenerate.style.opacity = '0.5';
       btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      btnGenerate.style.background = '#86efac';
+      btnGenerate.style.color = '#166534';
+      btnGenerate.removeAttribute('onclick');
+      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
     } else {
       btnGenerate.disabled = false;
+      btnGenerate.removeAttribute('data-locked');
       btnGenerate.style.opacity = '';
       btnGenerate.style.cursor = '';
+      btnGenerate.style.background = '';
+      btnGenerate.style.color = '';
+      btnGenerate.setAttribute('onclick', 'generatePrompt()');
       btnGenerate.title = '';
+      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
     }
@@ -863,8 +875,15 @@ function setPostGenerateMode(generated) {
 async function checkInputs() {
   const btn = event.currentTarget;
   const originalText = btn.textContent;
+  const btnGenerate = document.getElementById('btn_generate');
+  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
+  // Alle Buttons sperren und Farbe wechseln
   btn.disabled = true;
-  btn.textContent = 'Wird analysiert...';
+  btn.style.background = '#93c5fd';
+  btn.style.color = '#1e40af';
+  btn.textContent = 'Analysiere Eingaben...';
+  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
+  btnsReopt.forEach(function(b) { b.disabled = true; });
   const feedbackField = document.getElementById('feedback');
   const taskField = document.getElementById('task_description');
   const originalTask = taskField ? taskField.value.trim() : '';
@@ -875,24 +894,33 @@ async function checkInputs() {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     const improved = (r.checkSuggestions || '').trim();
+    var nl = String.fromCharCode(10);
     if (improved) {
       if (taskField) taskField.value = improved;
-      let newFeedback = '';
+      var newFeedback = '';
       if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       } else {
-        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       }
       feedbackField.value = newFeedback;
     } else {
-      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
+      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
     }
     feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
+    feedbackField.focus();
   } catch (err) {
-    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+    var nl = String.fromCharCode(10);
+    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
   } finally {
     btn.disabled = false;
+    btn.style.background = '#2563eb';
+    btn.style.color = 'white';
     btn.textContent = originalText;
+    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
+    btnsReopt.forEach(function(b) { b.disabled = false; });
   }
 }
 
@@ -961,20 +989,31 @@ function setPostGenerateMode(generated) {
   try {
     const btnGenerate = document.getElementById('btn_generate');
     if (!btnGenerate) return;
+    const btnCheck = document.getElementById('btn_check');
     const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
     const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
     if (generated) {
       btnGenerate.disabled = true;
-      btnGenerate.style.opacity = '0.45';
+      btnGenerate.setAttribute('data-locked', '1');
+      btnGenerate.style.opacity = '0.5';
       btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      btnGenerate.style.background = '#86efac';
+      btnGenerate.style.color = '#166534';
+      btnGenerate.removeAttribute('onclick');
+      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
     } else {
       btnGenerate.disabled = false;
+      btnGenerate.removeAttribute('data-locked');
       btnGenerate.style.opacity = '';
       btnGenerate.style.cursor = '';
+      btnGenerate.style.background = '';
+      btnGenerate.style.color = '';
+      btnGenerate.setAttribute('onclick', 'generatePrompt()');
       btnGenerate.title = '';
+      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
     }
@@ -985,8 +1024,15 @@ function setPostGenerateMode(generated) {
 async function checkInputs() {
   const btn = event.currentTarget;
   const originalText = btn.textContent;
+  const btnGenerate = document.getElementById('btn_generate');
+  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
+  // Alle Buttons sperren und Farbe wechseln
   btn.disabled = true;
-  btn.textContent = 'Wird analysiert...';
+  btn.style.background = '#93c5fd';
+  btn.style.color = '#1e40af';
+  btn.textContent = 'Analysiere Eingaben...';
+  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
+  btnsReopt.forEach(function(b) { b.disabled = true; });
   const feedbackField = document.getElementById('feedback');
   const taskField = document.getElementById('task_description');
   const originalTask = taskField ? taskField.value.trim() : '';
@@ -997,24 +1043,33 @@ async function checkInputs() {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     const improved = (r.checkSuggestions || '').trim();
+    var nl = String.fromCharCode(10);
     if (improved) {
       if (taskField) taskField.value = improved;
-      let newFeedback = '';
+      var newFeedback = '';
       if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       } else {
-        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       }
       feedbackField.value = newFeedback;
     } else {
-      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
+      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
     }
     feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
+    feedbackField.focus();
   } catch (err) {
-    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+    var nl = String.fromCharCode(10);
+    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
   } finally {
     btn.disabled = false;
+    btn.style.background = '#2563eb';
+    btn.style.color = 'white';
     btn.textContent = originalText;
+    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
+    btnsReopt.forEach(function(b) { b.disabled = false; });
   }
 }
 
@@ -1167,20 +1222,31 @@ function setPostGenerateMode(generated) {
   try {
     const btnGenerate = document.getElementById('btn_generate');
     if (!btnGenerate) return;
+    const btnCheck = document.getElementById('btn_check');
     const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
     const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
     if (generated) {
       btnGenerate.disabled = true;
-      btnGenerate.style.opacity = '0.45';
+      btnGenerate.setAttribute('data-locked', '1');
+      btnGenerate.style.opacity = '0.5';
       btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      btnGenerate.style.background = '#86efac';
+      btnGenerate.style.color = '#166534';
+      btnGenerate.removeAttribute('onclick');
+      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
     } else {
       btnGenerate.disabled = false;
+      btnGenerate.removeAttribute('data-locked');
       btnGenerate.style.opacity = '';
       btnGenerate.style.cursor = '';
+      btnGenerate.style.background = '';
+      btnGenerate.style.color = '';
+      btnGenerate.setAttribute('onclick', 'generatePrompt()');
       btnGenerate.title = '';
+      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
       if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
       if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
     }
@@ -1191,8 +1257,15 @@ function setPostGenerateMode(generated) {
 async function checkInputs() {
   const btn = event.currentTarget;
   const originalText = btn.textContent;
+  const btnGenerate = document.getElementById('btn_generate');
+  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
+  // Alle Buttons sperren und Farbe wechseln
   btn.disabled = true;
-  btn.textContent = 'Wird analysiert...';
+  btn.style.background = '#93c5fd';
+  btn.style.color = '#1e40af';
+  btn.textContent = 'Analysiere Eingaben...';
+  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
+  btnsReopt.forEach(function(b) { b.disabled = true; });
   const feedbackField = document.getElementById('feedback');
   const taskField = document.getElementById('task_description');
   const originalTask = taskField ? taskField.value.trim() : '';
@@ -1203,24 +1276,33 @@ async function checkInputs() {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     const improved = (r.checkSuggestions || '').trim();
+    var nl = String.fromCharCode(10);
     if (improved) {
       if (taskField) taskField.value = improved;
-      let newFeedback = '';
+      var newFeedback = '';
       if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       } else {
-        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
       }
       feedbackField.value = newFeedback;
     } else {
-      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
+      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
     }
     feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
+    feedbackField.focus();
   } catch (err) {
-    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+    var nl = String.fromCharCode(10);
+    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
   } finally {
     btn.disabled = false;
+    btn.style.background = '#2563eb';
+    btn.style.color = 'white';
     btn.textContent = originalText;
+    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
+    btnsReopt.forEach(function(b) { b.disabled = false; });
   }
 }
 
