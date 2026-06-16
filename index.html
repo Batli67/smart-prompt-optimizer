@@ -261,7 +261,7 @@
       </div>
       <div class="card-body">
         <div class="actions">
-          <button class="btn btn-muted" onclick="generatePrompt()">🔍 Eingaben prüfen / erneut prüfen</button>
+          <button class="btn btn-muted" onclick="checkInputs()">🔍 Eingaben prüfen / erneut prüfen</button>
           <button class="btn btn-green" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
@@ -573,9 +573,10 @@ function setSelectValue(id, value) {
   }
 }
 
-function loadDemo() { document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
+function loadDemo() { setPostGenerateMode(false); document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
 
 function clearForm() {
+  setPostGenerateMode(false);
   document.getElementById('title').value = '';
   document.getElementById('task_description').value = '';
   document.getElementById('role').value = '';
@@ -713,7 +714,11 @@ async function generatePrompt(userClarification = '') {
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
     if (r.type === 'clarification' && r.question) { showClarification(r.question); }
-    else { showResult(r); }
+    else {
+      showResult(r);
+      document.getElementById('feedback').value = '';
+      setPostGenerateMode(true);
+    }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
   } finally {
@@ -828,7 +833,70 @@ function savePrompt() {
   };
   prompts.push(entry);
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
-  renderSavedPrompts();
+  
+// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
+function setPostGenerateMode(generated) {
+  try {
+    const btnGenerate = document.getElementById('btn_generate');
+    if (!btnGenerate) return;
+    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
+    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
+    if (generated) {
+      btnGenerate.disabled = true;
+      btnGenerate.style.opacity = '0.45';
+      btnGenerate.style.cursor = 'not-allowed';
+      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
+    } else {
+      btnGenerate.disabled = false;
+      btnGenerate.style.opacity = '';
+      btnGenerate.style.cursor = '';
+      btnGenerate.title = '';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
+    }
+  } catch(e) { console.warn('setPostGenerateMode:', e); }
+}
+
+// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
+async function checkInputs() {
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Wird analysiert...';
+  const feedbackField = document.getElementById('feedback');
+  const taskField = document.getElementById('task_description');
+  const originalTask = taskField ? taskField.value.trim() : '';
+  const existingFeedback = feedbackField.value.trim();
+  const data = collectFormData();
+  data.mode = 'check';
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+    const improved = (r.checkSuggestions || '').trim();
+    if (improved) {
+      if (taskField) taskField.value = improved;
+      let newFeedback = '';
+      if (!existingFeedback) {
+        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      } else {
+        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      }
+      feedbackField.value = newFeedback;
+    } else {
+      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+    }
+    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+renderSavedPrompts();
   alert('Prompt "' + name + '" gespeichert!');
 }
 
@@ -887,7 +955,70 @@ function deleteSavedPrompt() {
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
   prompts.splice(idx, 1);
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
-  renderSavedPrompts();
+  
+// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
+function setPostGenerateMode(generated) {
+  try {
+    const btnGenerate = document.getElementById('btn_generate');
+    if (!btnGenerate) return;
+    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
+    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
+    if (generated) {
+      btnGenerate.disabled = true;
+      btnGenerate.style.opacity = '0.45';
+      btnGenerate.style.cursor = 'not-allowed';
+      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
+    } else {
+      btnGenerate.disabled = false;
+      btnGenerate.style.opacity = '';
+      btnGenerate.style.cursor = '';
+      btnGenerate.title = '';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
+    }
+  } catch(e) { console.warn('setPostGenerateMode:', e); }
+}
+
+// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
+async function checkInputs() {
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Wird analysiert...';
+  const feedbackField = document.getElementById('feedback');
+  const taskField = document.getElementById('task_description');
+  const originalTask = taskField ? taskField.value.trim() : '';
+  const existingFeedback = feedbackField.value.trim();
+  const data = collectFormData();
+  data.mode = 'check';
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+    const improved = (r.checkSuggestions || '').trim();
+    if (improved) {
+      if (taskField) taskField.value = improved;
+      let newFeedback = '';
+      if (!existingFeedback) {
+        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      } else {
+        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      }
+      feedbackField.value = newFeedback;
+    } else {
+      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+    }
+    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+renderSavedPrompts();
 }
 
 function renderSavedPrompts() {
@@ -1029,6 +1160,69 @@ function exportPricingCSV() {
 }
 document.getElementById('pricing_modal').addEventListener('click', function(e) { if (e.target === this) closePricingModal(); });
 document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
+
+
+// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
+function setPostGenerateMode(generated) {
+  try {
+    const btnGenerate = document.getElementById('btn_generate');
+    if (!btnGenerate) return;
+    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
+    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
+    if (generated) {
+      btnGenerate.disabled = true;
+      btnGenerate.style.opacity = '0.45';
+      btnGenerate.style.cursor = 'not-allowed';
+      btnGenerate.title = 'Prompt wurde bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
+    } else {
+      btnGenerate.disabled = false;
+      btnGenerate.style.opacity = '';
+      btnGenerate.style.cursor = '';
+      btnGenerate.title = '';
+      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
+      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
+    }
+  } catch(e) { console.warn('setPostGenerateMode:', e); }
+}
+
+// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
+async function checkInputs() {
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Wird analysiert...';
+  const feedbackField = document.getElementById('feedback');
+  const taskField = document.getElementById('task_description');
+  const originalTask = taskField ? taskField.value.trim() : '';
+  const existingFeedback = feedbackField.value.trim();
+  const data = collectFormData();
+  data.mode = 'check';
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+    const improved = (r.checkSuggestions || '').trim();
+    if (improved) {
+      if (taskField) taskField.value = improved;
+      let newFeedback = '';
+      if (!existingFeedback) {
+        newFeedback = 'Bestehender Aufgabenbeschrieb:\n' + originalTask + '\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      } else {
+        newFeedback = existingFeedback + '\n\n----------------------------------------\n\nVerbesserter Aufgabenbeschrieb:\n' + improved;
+      }
+      feedbackField.value = newFeedback;
+    } else {
+      feedbackField.value = (existingFeedback ? existingFeedback + '\n\n----------------------------------------\n\n' : '') + 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.';
+    }
+    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    feedbackField.value = (existingFeedback ? existingFeedback + '\n\n' : '') + 'Fehler: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
 
 renderSavedPrompts();
 </script>
