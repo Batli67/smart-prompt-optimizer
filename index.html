@@ -664,6 +664,9 @@ function setPostGenerateMode(generated) {
 }
 
 // ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
+// Speicher für letzten verbesserten Task Description (für Punkt 4 Fix)
+var lastImprovedTask = '';
+
 async function checkInputs() {
   const btn = document.getElementById('btn_check');
   const originalText = btn.textContent;
@@ -692,19 +695,40 @@ async function checkInputs() {
     const improved = (r.checkSuggestions || '').trim();
 
     if (improved) {
+      // FIX PUNKT 2&3: Verbesserten Task Description im Speicher merken
+      lastImprovedTask = improved;
       // Verbesserten Aufgabenbeschrieb ins Task Description Feld schreiben
       if (taskField) taskField.value = improved;
-      // Feedbackfeld: Original + Verbesserung zur Dokumentation
+      // FIX PUNKT 1: Feedbackfeld mit Original + Verbesserung + Cursor am Ende
       var newFeedback = '';
       if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
+        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl
+          + '✅ Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl
+          + '----------------------------------------' + nl
+          + '💬 Dein weiteres Feedback hier eingeben:' + nl;
       } else {
-        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
+        newFeedback = existingFeedback + nl + nl
+          + '----------------------------------------' + nl
+          + '✅ Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl
+          + '----------------------------------------' + nl
+          + '💬 Dein weiteres Feedback hier eingeben:' + nl;
       }
       feedbackField.value = newFeedback;
     } else {
-      var msg = 'Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.' + nl + nl;
-      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
+      // FIX PUNKT 1: Auch bei "vollständig" den originalTask voranstellen
+      var msg = '';
+      if (!existingFeedback) {
+        msg = 'Aktueller Aufgabenbeschrieb:' + nl + originalTask + nl + nl
+          + '✅ Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.' + nl + nl
+          + '----------------------------------------' + nl
+          + '💬 Optionales weiteres Feedback hier eingeben:' + nl;
+      } else {
+        msg = existingFeedback + nl + nl
+          + '----------------------------------------' + nl
+          + '✅ Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.' + nl + nl
+          + '💬 Optionales weiteres Feedback hier eingeben:' + nl;
+      }
+      feedbackField.value = msg;
     }
     feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
     feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
@@ -735,7 +759,12 @@ async function generatePrompt(userClarification) {
   document.getElementById('output_reason').textContent = '';
   document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
 
-  // BUG 3 FIX: Feedbackfeld leeren NICHT – stattdessen nur den mode setzen
+  // FIX PUNKT 4: Letzten verbesserten Task Description ins Formular übertragen
+  const taskField = document.getElementById('task_description');
+  if (lastImprovedTask && taskField) {
+    taskField.value = lastImprovedTask;
+  }
+
   const data = collectFormData(userClarification);
   data.mode = 'generate';
 
@@ -746,8 +775,9 @@ async function generatePrompt(userClarification) {
       showClarification(r.question);
     } else {
       showResult(r);
-      // Feedbackfeld nach erfolgreichem Generate leeren
+      // Feedbackfeld nach erfolgreichem Generate leeren + Speicher zurücksetzen
       document.getElementById('feedback').value = '';
+      lastImprovedTask = '';
       setPostGenerateMode(true);
     }
   } catch (err) {
