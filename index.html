@@ -1,72 +1,71 @@
 <!DOCTYPE html>
-<!-- saved from url=(0049)https://batli67.github.io/smart-prompt-optimizer/ -->
-<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Prompt Booster</title>
-  <style>
-    :root {
-      --bg: #f4f7fb; --card: #ffffff; --text: #1f2937; --muted: #6b7280;
-      --line: #dbe3ee; --primary: #2563eb; --primary-dark: #1d4ed8;
-      --soft: #eef4ff; --shadow: 0 10px 30px rgba(15,23,42,0.08); --radius: 18px;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; background: linear-gradient(180deg,#eff4fb 0%,#f8fafc 100%); color: var(--text); }
-    .container { max-width: 1320px; margin: 32px auto 64px; padding: 0 20px; }
-    .hero { background: linear-gradient(135deg,#1d4ed8 0%,#2563eb 55%,#60a5fa 100%); color: white; border-radius: 26px; padding: 28px 30px; box-shadow: var(--shadow); margin-bottom: 24px; }
-    .hero h1 { margin: 0 0 8px; font-size: 2rem; line-height: 1.1; }
-    .hero p { margin: 0; color: rgba(255,255,255,0.92); max-width: 980px; line-height: 1.5; }
-    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; align-items: center; width: 100%; }
-    .btn, button { appearance: none; border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 600; cursor: pointer; transition: .18s ease; font-size: 0.95rem; }
-    .btn-primary { background: white; color: var(--primary-dark); }
-    .btn-secondary { background: rgba(255,255,255,0.28); color: white; border: 1px solid rgba(255,255,255,0.45); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.38); }
-    .btn-green { background: #16a34a; color: white; }
-    .btn-green:hover { background: #15803d; }
-    .btn-neutral { background: #e2e8f0; color: #374151; border: 1px solid #cbd5e1; }
-    .btn-neutral:hover { background: #cbd5e1; }
-    .btn-action { background: var(--primary); color: white; }
-    .btn-action:hover { background: var(--primary-dark); }
-    .btn-muted { background: #edf2f7; color: #1f2937; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
-    .stack { display: grid; gap: 22px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .card-header { padding: 18px 22px 10px; border-bottom: 1px solid #eef2f7; background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); }
-    .input-card .card-header { background: #d1d5db; }
-    .action-card { background: #fef9e7; }
-    .action-card .card-header { background: #f8edc2; }
-    .output { background: #f0fdf4; }
-    .output .card-header { background: #dcfce7; }
-    .card-title { margin: 0; font-size: 1.08rem; font-weight: 700; }
-    .card-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
-    .card-body { padding: 20px 22px 22px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-    .field { display: grid; gap: 7px; margin-bottom: 16px; }
-    label { font-size: 0.92rem; font-weight: 650; }
-    .hint { color: var(--muted); font-weight: 500; font-size: 0.84rem; }
-    input[type="text"], select, textarea, input[type="file"] { width: 100%; border: 1px solid #cfd8e3; background: #fff; color: var(--text); border-radius: 12px; padding: 12px 14px; font-size: 0.96rem; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
-    input[type="text"]:focus, select:focus, textarea:focus { border-color: #7aa2ff; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
-    textarea { min-height: 136px; resize: vertical; line-height: 1.5; }
-    .toggle { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px dashed #bfd1ef; border-radius: 12px; background: #fafcff; font-size: 0.94rem; color: var(--text); margin-bottom: 16px; }
-    #web_search_toggle { border: 2px solid #2563eb; background: #eef4ff; font-weight: 700; color: #1d4ed8; }
-    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
-    .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #d7dfeb; background: #fff; border-radius: 999px; padding: 10px 14px; font-size: 0.92rem; cursor: pointer; }
-    .chip input { accent-color: var(--primary); }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
-    .input-card { background: #f3f4f6; }
-    .output-box { background: white; border: 1px solid #dce7f7; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
-    .output-box h4 { margin: 0 0 10px; font-size: 0.96rem; }
-    .prompt-preview { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap; line-height: 1.55; color: #111827; font-size: 0.9rem; }
-    .rank { margin: 0; padding-left: 20px; line-height: 1.7; }
-    .file-list { margin: 10px 0 0; padding-left: 18px; color: var(--text); line-height: 1.6; }
-    .muted { color: var(--muted); font-size: 0.9rem; }
-    .token-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; color: #166534; margin-bottom: 14px; }
-    .save-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; }
-    .sort-row { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; font-size: 0.9rem; }
-    .footer-space { height: 6px; }
-    @media (max-width: 980px) { .grid-2, .grid-3, .save-row { grid-template-columns: 1fr; } }
-  </style>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Prompt Booster</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --card: #ffffff; --text: #1f2937; --muted: #6b7280;
+    --line: #dbe3ee; --primary: #2563eb; --primary-dark: #1d4ed8;
+    --soft: #eef4ff; --shadow: 0 10px 30px rgba(15,23,42,0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; background: linear-gradient(180deg,#eff4fb 0%,#f8fafc 100%); color: var(--text); }
+  .container { max-width: 1320px; margin: 32px auto 64px; padding: 0 20px; }
+  .hero { background: linear-gradient(135deg,#1d4ed8 0%,#2563eb 55%,#60a5fa 100%); color: white; border-radius: 26px; padding: 28px 30px; box-shadow: var(--shadow); margin-bottom: 24px; }
+  .hero h1 { margin: 0 0 8px; font-size: 2rem; line-height: 1.1; }
+  .hero p { margin: 0; color: rgba(255,255,255,0.92); max-width: 980px; line-height: 1.5; }
+  .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; align-items: center; width: 100%; }
+  .btn, button { appearance: none; border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 600; cursor: pointer; transition: .18s ease; font-size: 0.95rem; }
+  .btn-primary { background: white; color: var(--primary-dark); }
+  .btn-secondary { background: rgba(255,255,255,0.28); color: white; border: 1px solid rgba(255,255,255,0.45); }
+  .btn-secondary:hover { background: rgba(255,255,255,0.38); }
+  .btn-green { background: #16a34a; color: white; }
+  .btn-green:hover { background: #15803d; }
+  .btn-neutral { background: #e2e8f0; color: #374151; border: 1px solid #cbd5e1; }
+  .btn-neutral:hover { background: #cbd5e1; }
+  .btn-action { background: var(--primary); color: white; }
+  .btn-action:hover { background: var(--primary-dark); }
+  .btn-muted { background: #edf2f7; color: #1f2937; }
+  .btn-danger { background: #fee2e2; color: #dc2626; }
+  .stack { display: grid; gap: 22px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 18px 22px 10px; border-bottom: 1px solid #eef2f7; background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); }
+  .input-card .card-header { background: #d1d5db; }
+  .action-card { background: #fef9e7; }
+  .action-card .card-header { background: #f8edc2; }
+  .output { background: #f0fdf4; }
+  .output .card-header { background: #dcfce7; }
+  .card-title { margin: 0; font-size: 1.08rem; font-weight: 700; }
+  .card-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+  .card-body { padding: 20px 22px 22px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .field { display: grid; gap: 7px; margin-bottom: 16px; }
+  label { font-size: 0.92rem; font-weight: 650; }
+  .hint { color: var(--muted); font-weight: 500; font-size: 0.84rem; }
+  input[type="text"], select, textarea, input[type="file"] { width: 100%; border: 1px solid #cfd8e3; background: #fff; color: var(--text); border-radius: 12px; padding: 12px 14px; font-size: 0.96rem; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+  input[type="text"]:focus, select:focus, textarea:focus { border-color: #7aa2ff; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+  textarea { min-height: 136px; resize: vertical; line-height: 1.5; }
+  .toggle { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px dashed #bfd1ef; border-radius: 12px; background: #fafcff; font-size: 0.94rem; color: var(--text); margin-bottom: 16px; }
+  #web_search_toggle { border: 2px solid #2563eb; background: #eef4ff; font-weight: 700; color: #1d4ed8; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #d7dfeb; background: #fff; border-radius: 999px; padding: 10px 14px; font-size: 0.92rem; cursor: pointer; }
+  .chip input { accent-color: var(--primary); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+  .input-card { background: #f3f4f6; }
+  .output-box { background: white; border: 1px solid #dce7f7; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  .output-box h4 { margin: 0 0 10px; font-size: 0.96rem; }
+  .prompt-preview { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap; line-height: 1.55; color: #111827; font-size: 0.9rem; }
+  .rank { margin: 0; padding-left: 20px; line-height: 1.7; }
+  .file-list { margin: 10px 0 0; padding-left: 18px; color: var(--text); line-height: 1.6; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  .token-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; color: #166534; margin-bottom: 14px; }
+  .save-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; }
+  .footer-space { height: 6px; }
+  @media (max-width: 980px) { .grid-2, .grid-3, .save-row { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
 <div class="container">
@@ -132,7 +131,7 @@
               <option>Korrespondenz / Kommunikation</option>
               <option>Bericht / Zusammenfassung</option>
               <option>Recherche / Informationssuche</option>
-              <option selected="">Analyse / Beurteilung</option>
+              <option selected>Analyse / Beurteilung</option>
               <option>Strukturierte Ausgabe / Tabelle / Liste</option>
               <option>Kreativer Inhalt</option>
               <option>Bildgenerierung / Bildbearbeitung</option>
@@ -141,7 +140,7 @@
           <div class="field">
             <label for="language">Sprache</label>
             <select id="language">
-              <option selected="">Deutsch</option>
+              <option selected>Deutsch</option>
               <option>Englisch</option>
               <option>Französisch</option>
               <option>Italienisch</option>
@@ -149,7 +148,7 @@
           </div>
         </div>
         <label class="toggle" id="web_search_toggle">
-          <input type="checkbox" id="web_search_active" checked="">
+          <input type="checkbox" id="web_search_active" checked>
           🌐 Prompt Content Search on Internet / WEB explizit aktivieren
         </label>
         <div class="field">
@@ -211,7 +210,7 @@
             <select id="web_search_mode">
               <option>Keine Websuche</option>
               <option>Websuche falls nötig</option>
-              <option selected="">Websuche zwingend</option>
+              <option selected>Websuche zwingend</option>
             </select>
           </div>
           <div class="field">
@@ -220,7 +219,7 @@
               <option>Heute</option>
               <option>Diese Woche</option>
               <option>Letzter Monat</option>
-              <option selected="">Letzte 3 Monate</option>
+              <option selected>Letzte 3 Monate</option>
               <option>Seit Jahresbeginn</option>
               <option>Letzte 12 Monate</option>
               <option>Nicht relevant</option>
@@ -243,7 +242,7 @@
         <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
           <div class="field" style="flex:1;min-width:220px;margin-bottom:0;">
             <label for="attachments">Dateien hochladen</label>
-            <input id="attachments" type="file" multiple="" onchange="updateFileList()">
+            <input id="attachments" type="file" multiple onchange="updateFileList()">
           </div>
           <div id="file_assessment" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-size:0.88rem;color:#166534;min-width:260px;">
             <div id="file_assessment_content"></div>
@@ -268,7 +267,7 @@
           <label for="feedback">Feedback / Anpassungen</label>
           <textarea id="feedback" placeholder="z. B. Fokus stärker auf Bewertung und Free Cashflow legen, Wettbewerber XYZ ergänzen..."></textarea>
         </div>
-        <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
+        <button class="btn" id="btn_reoptimize_action" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
       </div>
     </section>
 
@@ -282,8 +281,8 @@
           <h4>📄 Optimierter Prompt <span class="hint" style="font-weight:400;">– direkt bearbeitbar</span></h4>
           <textarea id="output_prompt" class="prompt-preview" style="min-height:300px;width:100%;border:1px dashed #bfd1ef;border-radius:12px;padding:12px;background:#fafcff;resize:vertical;"></textarea>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-            <button class="btn btn-muted" onclick="copyToClipboard(&#39;output_prompt&#39;)">📋 Prompt kopieren</button>
-            <button class="btn" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
+            <button class="btn btn-muted" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
+            <button class="btn" id="btn_reoptimize_output" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
           </div>
         </div>
         <div class="token-box" id="token_box">
@@ -338,7 +337,7 @@
         <div style="border-top:1px solid #eef2f7;padding-top:14px;">
           <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;font-size:0.9rem;flex-wrap:wrap;">
             <span style="font-weight:600;color:#6b7280;">Sortieren:</span>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="newest" checked="" onchange="renderSavedPrompts()"> Neueste zuerst</label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="newest" checked onchange="renderSavedPrompts()"> Neueste zuerst</label>
             <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;"><input type="radio" name="sort_prompts" value="alpha" onchange="renderSavedPrompts()"> Alphabetisch</label>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -445,107 +444,57 @@
 
 <script>
 const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer-BA';
-const API_KEY = 'SPObat-+*@11062026'; // ← Header Auth Key für Webhook-Authentifizierung
+const API_KEY = 'SPObat-+*@11062026';
 
 // ── TEMPLATES ──────────────────────────────────────────────────────────────
 const TEMPLATES = {
   aktienanalyse: {
-    title: 'Analyse Sika Aktie vs. Wettbewerber',
-    category: 'Analyse / Beurteilung',
-    language: 'Deutsch',
-    webSearch: true,
+    title: 'Analyse Sika Aktie vs. Wettbewerber', category: 'Analyse / Beurteilung', language: 'Deutsch', webSearch: true,
     task: 'Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann, und wie sich Wachstum, Verschuldung, Free Cashflow, Dividendenpolitik und Share Buyback Politik im Vergleich zur Konkurrenz entwickeln. Ergänze KGV, EV/EBITDA Bewertung und ein Worst Case Szenario.',
-    role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung',
-    targetGroup: 'Privatinvestor mit Grundkenntnissen',
-    outputFormats: ['Vergleich', 'Tabelle', 'Zusammenfassung', 'Schlussfolgerung'],
-    tone: ['sachlich', 'Business', 'überzeugend'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 3 Monate',
-    sources: 'Geschäftsberichte, Investor Relations, Reuters'
+    role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung', targetGroup: 'Privatinvestor mit Grundkenntnissen',
+    outputFormats: ['Vergleich', 'Tabelle', 'Zusammenfassung', 'Schlussfolgerung'], tone: ['sachlich', 'Business', 'überzeugend'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Investor Relations, Reuters'
   },
   korrespondenz: {
-    title: 'Professionelles Anschreiben für Stellenbewerbung',
-    category: 'Korrespondenz / Kommunikation',
-    language: 'Deutsch',
-    webSearch: false,
-    task: 'Schreibe ein professionelles Anschreiben für eine Bewerbung als Senior Marketing Manager bei einem mittelgroßen Technologieunternehmen. Die Person hat 8 Jahre Erfahrung im B2B-Marketing, Kenntnisse in digitalen Kanälen und hat zuletzt ein Team von 5 Personen geführt. Ton soll selbstbewusst aber nicht arrogant sein.',
-    role: 'Erfahrener HR-Berater und Karriere-Coach',
-    targetGroup: 'HR-Manager und Entscheidungsträger im Unternehmen',
-    outputFormats: ['Bericht'],
-    tone: ['formell', 'überzeugend'],
-    webSearchMode: 'Keine Websuche',
-    freshness: 'Nicht relevant',
-    sources: ''
+    title: 'Professionelles Anschreiben für Stellenbewerbung', category: 'Korrespondenz / Kommunikation', language: 'Deutsch', webSearch: false,
+    task: 'Schreibe ein professionelles Anschreiben für eine Bewerbung als Senior Marketing Manager bei einem mittelgroßen Technologieunternehmen.',
+    role: 'Erfahrener HR-Berater und Karriere-Coach', targetGroup: 'HR-Manager und Entscheidungsträger im Unternehmen',
+    outputFormats: ['Bericht'], tone: ['formell', 'überzeugend'], webSearchMode: 'Keine Websuche', freshness: 'Nicht relevant', sources: ''
   },
   bericht: {
-    title: 'Zusammenfassung Quartalsbericht Q1 2026',
-    category: 'Bericht / Zusammenfassung',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Erstelle eine prägnante Zusammenfassung eines Quartalsberichts für das Management. Fokus auf: Umsatzentwicklung, EBITDA-Marge, wichtigste Kostentreiber, Ausblick auf Q2 2026 und die drei wichtigsten strategischen Massnahmen des Quartals. Vergleich mit Vorjahresquartal und Markterwartungen.',
-    role: 'Erfahrener Business Analyst mit Fokus auf Finanzberichterstattung',
-    targetGroup: 'C-Level Management und Verwaltungsrat',
-    outputFormats: ['Bericht', 'Zusammenfassung', 'Stichpunkte'],
-    tone: ['sachlich', 'Business', 'formell'],
-    webSearchMode: 'Websuche falls nötig',
-    freshness: 'Letzte 3 Monate',
-    sources: 'Geschäftsberichte, Bloomberg, Reuters'
+    title: 'Zusammenfassung Quartalsbericht Q1 2026', category: 'Bericht / Zusammenfassung', language: 'Deutsch', webSearch: true,
+    task: 'Erstelle eine prägnante Zusammenfassung eines Quartalsberichts für das Management.',
+    role: 'Erfahrener Business Analyst mit Fokus auf Finanzberichterstattung', targetGroup: 'C-Level Management und Verwaltungsrat',
+    outputFormats: ['Bericht', 'Zusammenfassung', 'Stichpunkte'], tone: ['sachlich', 'Business', 'formell'],
+    webSearchMode: 'Websuche falls nötig', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Bloomberg, Reuters'
   },
   recherche: {
-    title: 'Marktrecherche KI-gestützte Automatisierung 2026',
-    category: 'Recherche / Informationssuche',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Recherchiere den aktuellen Stand der KI-gestützten Prozessautomatisierung in mittelständischen Unternehmen in der DACH-Region. Untersuche: Welche Tools dominieren den Markt, wie hoch ist die Adoptionsrate, welche Branchen führen, was sind die grössten Hindernisse für kleinere Unternehmen, und welche Kosteneinsparungen werden realistisch erreicht.',
-    role: 'Marktforscher und Technologie-Analyst',
-    targetGroup: 'Geschäftsführer und IT-Entscheider in KMU',
-    outputFormats: ['Bericht', 'Tabelle', 'Zusammenfassung'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 6 Monate',
-    sources: 'Gartner, McKinsey, IDC, Heise, t3n'
+    title: 'Marktrecherche KI-gestützte Automatisierung 2026', category: 'Recherche / Informationssuche', language: 'Deutsch', webSearch: true,
+    task: 'Recherchiere den aktuellen Stand der KI-gestützten Prozessautomatisierung in mittelständischen Unternehmen in der DACH-Region.',
+    role: 'Marktforscher und Technologie-Analyst', targetGroup: 'Geschäftsführer und IT-Entscheider in KMU',
+    outputFormats: ['Bericht', 'Tabelle', 'Zusammenfassung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 6 Monate', sources: 'Gartner, McKinsey, IDC, Heise, t3n'
   },
   tabellenanalyse: {
-    title: 'Vergleichsanalyse Cloud-Anbieter AWS vs Azure vs GCP',
-    category: 'Strukturierte Ausgabe / Tabelle / Liste',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Erstelle eine detaillierte Vergleichstabelle der drei grössten Cloud-Anbieter AWS, Microsoft Azure und Google Cloud Platform. Vergleiche: Preismodelle für Standard-Workloads, verfügbare KI/ML-Services, Sicherheitszertifizierungen, DSGVO-Compliance, Support-Qualität und typische Migrationskosten. Ergänze eine Empfehlung je nach Unternehmensgrösse.',
-    role: 'Senior Cloud-Architekt und IT-Berater',
-    targetGroup: 'IT-Leiter und CTO in mittelständischen Unternehmen',
-    outputFormats: ['Tabelle', 'Vergleich', 'Schlussfolgerung'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Websuche zwingend',
-    freshness: 'Letzte 3 Monate',
-    sources: 'AWS, Microsoft, Google Cloud Dokumentation, Gartner'
+    title: 'Vergleichsanalyse Cloud-Anbieter AWS vs Azure vs GCP', category: 'Strukturierte Ausgabe / Tabelle / Liste', language: 'Deutsch', webSearch: true,
+    task: 'Erstelle eine detaillierte Vergleichstabelle der drei grössten Cloud-Anbieter AWS, Microsoft Azure und Google Cloud Platform.',
+    role: 'Senior Cloud-Architekt und IT-Berater', targetGroup: 'IT-Leiter und CTO in mittelständischen Unternehmen',
+    outputFormats: ['Tabelle', 'Vergleich', 'Schlussfolgerung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'AWS, Microsoft, Google Cloud Dokumentation, Gartner'
   },
   kreativ: {
-    title: 'Social Media Kampagne für nachhaltiges Produkt',
-    category: 'Kreativer Inhalt',
-    language: 'Deutsch',
-    webSearch: true,
-    task: 'Entwickle eine kreative Social-Media-Kampagne für eine neue nachhaltige Produktlinie eines Schweizer Outdoor-Ausrüsters. Die Kampagne soll auf Instagram und LinkedIn funktionieren. Erstelle 5 Post-Ideen mit Bildkonzept, Caption und Hashtags. Ziel: Markenbewusstsein stärken und Kaufentscheidung beeinflussen. USP: 100% recycelte Materialien, faire Produktion in der Schweiz.',
-    role: 'Kreativdirektor mit Fokus auf nachhaltige Marken und Social Media',
-    targetGroup: 'Outdoor-Enthusiasten 25-45 Jahre, umweltbewusst, kaufkräftig',
-    outputFormats: ['Liste', 'Stichpunkte', 'Bericht'],
-    tone: ['freundlich', 'überzeugend', 'locker'],
-    webSearchMode: 'Websuche falls nötig',
-    freshness: 'Letzte 6 Monate',
-    sources: 'Instagram Trends, LinkedIn Marketing Solutions'
+    title: 'Social Media Kampagne für nachhaltiges Produkt', category: 'Kreativer Inhalt', language: 'Deutsch', webSearch: true,
+    task: 'Entwickle eine kreative Social-Media-Kampagne für eine neue nachhaltige Produktlinie eines Schweizer Outdoor-Ausrüsters.',
+    role: 'Kreativdirektor mit Fokus auf nachhaltige Marken und Social Media', targetGroup: 'Outdoor-Enthusiasten 25-45 Jahre, umweltbewusst, kaufkräftig',
+    outputFormats: ['Liste', 'Stichpunkte', 'Bericht'], tone: ['freundlich', 'überzeugend', 'locker'],
+    webSearchMode: 'Websuche falls nötig', freshness: 'Letzte 6 Monate', sources: 'Instagram Trends, LinkedIn Marketing Solutions'
   },
   bildgenerierung: {
-    title: 'Produktfoto-Optimierung und Hintergrundersatz',
-    category: 'Bildgenerierung / Bildbearbeitung',
-    language: 'Deutsch',
-    webSearch: false,
-    task: 'Ich möchte ein bestehendes Produktfoto (weisser Hintergrund) professionell aufwerten. Der Hintergrund soll durch einen stilvollen Lifestyle-Hintergrund ersetzt werden der zum Produkt passt (Premium-Küche für Kochzubehör). Das Produkt soll scharf bleiben, Beleuchtung soll angepasst werden und das Bild soll auf 4K-Auflösung hochskaliert werden für die Website.',
-    role: 'Professioneller Produktfotograf und Bildbearbeiter',
-    targetGroup: 'E-Commerce Manager und Marketing-Team',
-    outputFormats: ['Stichpunkte', 'Bericht'],
-    tone: ['sachlich', 'Business'],
-    webSearchMode: 'Keine Websuche',
-    freshness: 'Nicht relevant',
-    sources: ''
+    title: 'Produktfoto-Optimierung und Hintergrundersatz', category: 'Bildgenerierung / Bildbearbeitung', language: 'Deutsch', webSearch: false,
+    task: 'Ich möchte ein bestehendes Produktfoto professionell aufwerten.',
+    role: 'Professioneller Produktfotograf und Bildbearbeiter', targetGroup: 'E-Commerce Manager und Marketing-Team',
+    outputFormats: ['Stichpunkte', 'Bericht'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Keine Websuche', freshness: 'Nicht relevant', sources: ''
   }
 };
 
@@ -577,14 +526,7 @@ function loadDemo() { setPostGenerateMode(false); document.getElementById('templ
 
 function clearForm() {
   setPostGenerateMode(false);
-  document.getElementById('title').value = '';
-  document.getElementById('task_description').value = '';
-  document.getElementById('role').value = '';
-  document.getElementById('target_group').value = '';
-  document.getElementById('preferred_sources').value = '';
-  document.getElementById('feedback').value = '';
-  document.getElementById('template_name').value = '';
-  document.getElementById('save_prompt_name').value = '';
+  ['title','task_description','role','target_group','preferred_sources','feedback','template_name','save_prompt_name'].forEach(id => { document.getElementById(id).value = ''; });
   document.querySelectorAll('input[name="outputFormat"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('#tone_chips input').forEach(cb => cb.checked = false);
   document.getElementById('web_search_active').checked = false;
@@ -610,13 +552,12 @@ function updateFileList() {
   });
   const estTokens = Math.round(totalKB * 250);
   const pct = ((estTokens / 128000) * 100).toFixed(1);
-  assessContent.innerHTML = `<strong>📎 ${files.length} Datei${files.length>1?'en':''}</strong> · ${totalKB.toFixed(0)} KB total<br>
-    ⚡ ~${estTokens.toLocaleString('de-CH')} Tokens geschätzt · ${pct}% des Kontextfensters<br>
-    <span style="font-size:0.78rem;opacity:0.8;">Schätzung basiert auf Dateigrösse (Bilder nicht eingerechnet)</span>`;
+  assessContent.innerHTML = '<strong>📎 ' + files.length + ' Datei' + (files.length>1?'en':'') + '</strong> · ' + totalKB.toFixed(0) + ' KB total<br>⚡ ~' + estTokens.toLocaleString('de-CH') + ' Tokens geschätzt · ' + pct + '% des Kontextfensters';
   assessment.style.display = 'block';
 }
 
-function collectFormData(userClarification = '') {
+function collectFormData(userClarification) {
+  userClarification = userClarification || '';
   const outputFormats = Array.from(document.querySelectorAll('input[name="outputFormat"]:checked')).map(cb => cb.value);
   const sonstigesText = document.getElementById('outputFormat_sonstiges_text').value;
   if (sonstigesText) outputFormats.push(sonstigesText);
@@ -643,14 +584,10 @@ function collectFormData(userClarification = '') {
   };
 }
 
-// ── N8N AUFRUFEN – MIT HEADER AUTH ────────────────────────────────────────────
 async function callN8n(data) {
   const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY                  // ← Authentifizierungs-Header
-    },
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
     body: JSON.stringify(data)
   });
   if (!response.ok) throw new Error('n8n Fehler: ' + response.status);
@@ -698,7 +635,95 @@ function showClarification(question) {
   document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
 }
 
-async function generatePrompt(userClarification = '') {
+// ── BUTTON-STATES ─────────────────────────────────────────────────────────────
+function setPostGenerateMode(generated) {
+  try {
+    const btnGenerate = document.getElementById('btn_generate');
+    if (!btnGenerate) return;
+    const btnCheck = document.getElementById('btn_check');
+    const btnReoptAction = document.getElementById('btn_reoptimize_action');
+    const btnReoptOutput = document.getElementById('btn_reoptimize_output');
+    if (generated) {
+      btnGenerate.disabled = true;
+      btnGenerate.setAttribute('data-locked', '1');
+      btnGenerate.style.cssText = 'opacity:0.5;cursor:not-allowed;background:#86efac;color:#166534;';
+      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
+      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
+      if (btnReoptAction) { btnReoptAction.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
+      if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
+    } else {
+      btnGenerate.disabled = false;
+      btnGenerate.removeAttribute('data-locked');
+      btnGenerate.style.cssText = '';
+      btnGenerate.title = '';
+      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
+      if (btnReoptAction) { btnReoptAction.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
+      if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
+    }
+  } catch(e) { console.warn('setPostGenerateMode:', e); }
+}
+
+// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
+async function checkInputs() {
+  const btn = document.getElementById('btn_check');
+  const originalText = btn.textContent;
+  const btnGenerate = document.getElementById('btn_generate');
+  const btnReoptAction = document.getElementById('btn_reoptimize_action');
+  const btnReoptOutput = document.getElementById('btn_reoptimize_output');
+
+  btn.disabled = true;
+  btn.style.cssText = 'background:#93c5fd;color:#1e40af;';
+  btn.textContent = '⏳ Analysiere Eingaben...';
+  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
+  if (btnReoptAction) btnReoptAction.disabled = true;
+  if (btnReoptOutput) btnReoptOutput.disabled = true;
+
+  const feedbackField = document.getElementById('feedback');
+  const taskField = document.getElementById('task_description');
+  const originalTask = taskField ? taskField.value.trim() : '';
+  const existingFeedback = feedbackField.value.trim();
+  const data = collectFormData();
+  data.mode = 'check';
+
+  const nl = '\n';
+  try {
+    const result = await callN8n(data);
+    const r = Array.isArray(result) ? result[0] : result;
+    const improved = (r.checkSuggestions || '').trim();
+
+    if (improved) {
+      // Verbesserten Aufgabenbeschrieb ins Task Description Feld schreiben
+      if (taskField) taskField.value = improved;
+      // Feedbackfeld: Original + Verbesserung zur Dokumentation
+      var newFeedback = '';
+      if (!existingFeedback) {
+        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
+      } else {
+        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
+      }
+      feedbackField.value = newFeedback;
+    } else {
+      var msg = 'Eingaben sind vollständig. Du kannst jetzt den Prompt generieren.' + nl + nl;
+      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
+    }
+    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
+    feedbackField.focus();
+  } catch (err) {
+    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + '❌ Fehler: ' + err.message + nl + nl;
+  } finally {
+    btn.disabled = false;
+    btn.style.cssText = 'background:#2563eb;color:white;border:2px solid #1d4ed8;';
+    btn.textContent = originalText;
+    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
+    if (btnReoptAction) btnReoptAction.disabled = false;
+    if (btnReoptOutput) btnReoptOutput.disabled = false;
+  }
+}
+
+// ── PROMPT GENERIEREN ─────────────────────────────────────────────────────────
+async function generatePrompt(userClarification) {
+  userClarification = userClarification || '';
   const btn = document.getElementById('btn_generate');
   const originalText = btn.textContent;
   btn.disabled = true;
@@ -709,13 +734,19 @@ async function generatePrompt(userClarification = '') {
   document.getElementById('output_optimizations').innerHTML = '';
   document.getElementById('output_reason').textContent = '';
   document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
+
+  // BUG 3 FIX: Feedbackfeld leeren NICHT – stattdessen nur den mode setzen
+  const data = collectFormData(userClarification);
+  data.mode = 'generate';
+
   try {
-    const data = collectFormData(userClarification);
     const result = await callN8n(data);
     const r = Array.isArray(result) ? result[0] : result;
-    if (r.type === 'clarification' && r.question) { showClarification(r.question); }
-    else {
+    if (r.type === 'clarification' && r.question) {
+      showClarification(r.question);
+    } else {
       showResult(r);
+      // Feedbackfeld nach erfolgreichem Generate leeren
       document.getElementById('feedback').value = '';
       setPostGenerateMode(true);
     }
@@ -728,8 +759,7 @@ async function generatePrompt(userClarification = '') {
   }
 }
 
-
-// ── PROMPT ERNEUT OPTIMIEREN – NUR Output + Feedback, KEINE Formularfelder ──
+// ── PROMPT ERNEUT OPTIMIEREN ──────────────────────────────────────────────────
 async function reoptimizePrompt() {
   const previousPrompt = document.getElementById('output_prompt').value || '';
   const feedback = document.getElementById('feedback').value || '';
@@ -748,7 +778,6 @@ async function reoptimizePrompt() {
   document.getElementById('output_optimizations').innerHTML = '';
   document.getElementById('output_reason').textContent = '';
 
-  // NUR previousPrompt und feedback senden – KEINE Formularfelder
   const data = {
     titel: document.getElementById('title').value,
     kategorie: document.getElementById('category').value,
@@ -765,7 +794,8 @@ async function reoptimizePrompt() {
     feedback: feedback,
     userClarification: '',
     attachments: '',
-    previousPrompt: previousPrompt
+    previousPrompt: previousPrompt,
+    mode: 'feedback'
   };
 
   try {
@@ -811,8 +841,7 @@ function updateTemplate() {
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
   if (!templates[name]) { alert('Vorlage "' + name + '" nicht gefunden. Zuerst speichern.'); return; }
-  const data = collectFormData();
-  templates[name] = data;
+  templates[name] = collectFormData();
   localStorage.setItem('spb_templates', JSON.stringify(templates));
   alert('Vorlage "' + name + '" aktualisiert!');
 }
@@ -826,7 +855,7 @@ function savePrompt() {
     date: new Date().toISOString(),
     formData: collectFormData(),
     output: {
-      optimizedPrompt: document.getElementById('output_prompt').textContent,
+      optimizedPrompt: document.getElementById('output_prompt').value,
       recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
       optimizations: Array.from(document.querySelectorAll('#output_optimizations li')).map(li => li.textContent),
       modelReason: document.getElementById('output_reason').textContent
@@ -834,97 +863,7 @@ function savePrompt() {
   };
   prompts.push(entry);
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
-  
-// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
-function setPostGenerateMode(generated) {
-  try {
-    const btnGenerate = document.getElementById('btn_generate');
-    if (!btnGenerate) return;
-    const btnCheck = document.getElementById('btn_check');
-    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
-    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
-    if (generated) {
-      btnGenerate.disabled = true;
-      btnGenerate.setAttribute('data-locked', '1');
-      btnGenerate.style.opacity = '0.5';
-      btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.style.background = '#86efac';
-      btnGenerate.style.color = '#166534';
-      btnGenerate.removeAttribute('onclick');
-      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
-      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
-    } else {
-      btnGenerate.disabled = false;
-      btnGenerate.removeAttribute('data-locked');
-      btnGenerate.style.opacity = '';
-      btnGenerate.style.cursor = '';
-      btnGenerate.style.background = '';
-      btnGenerate.style.color = '';
-      btnGenerate.setAttribute('onclick', 'generatePrompt()');
-      btnGenerate.title = '';
-      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
-    }
-  } catch(e) { console.warn('setPostGenerateMode:', e); }
-}
-
-// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
-async function checkInputs() {
-  const btn = event.currentTarget;
-  const originalText = btn.textContent;
-  const btnGenerate = document.getElementById('btn_generate');
-  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
-  // Alle Buttons sperren und Farbe wechseln
-  btn.disabled = true;
-  btn.style.background = '#93c5fd';
-  btn.style.color = '#1e40af';
-  btn.textContent = 'Analysiere Eingaben...';
-  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
-  btnsReopt.forEach(function(b) { b.disabled = true; });
-  const feedbackField = document.getElementById('feedback');
-  const taskField = document.getElementById('task_description');
-  const originalTask = taskField ? taskField.value.trim() : '';
-  const existingFeedback = feedbackField.value.trim();
-  const data = collectFormData();
-  data.mode = 'check';
-  try {
-    const result = await callN8n(data);
-    const r = Array.isArray(result) ? result[0] : result;
-    const improved = (r.checkSuggestions || '').trim();
-    var nl = String.fromCharCode(10);
-    if (improved) {
-      if (taskField) taskField.value = improved;
-      var newFeedback = '';
-      if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      } else {
-        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      }
-      feedbackField.value = newFeedback;
-    } else {
-      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
-      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
-    }
-    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
-    feedbackField.focus();
-  } catch (err) {
-    var nl = String.fromCharCode(10);
-    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
-  } finally {
-    btn.disabled = false;
-    btn.style.background = '#2563eb';
-    btn.style.color = 'white';
-    btn.textContent = originalText;
-    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
-    btnsReopt.forEach(function(b) { b.disabled = false; });
-  }
-}
-
-renderSavedPrompts();
+  renderSavedPrompts();
   alert('Prompt "' + name + '" gespeichert!');
 }
 
@@ -935,7 +874,7 @@ function updateSavedPrompt() {
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
   prompts[idx].formData = collectFormData();
   prompts[idx].output = {
-    optimizedPrompt: document.getElementById('output_prompt').textContent,
+    optimizedPrompt: document.getElementById('output_prompt').value,
     recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
     optimizations: Array.from(document.querySelectorAll('#output_optimizations li')).map(li => li.textContent),
     modelReason: document.getElementById('output_reason').textContent
@@ -983,97 +922,7 @@ function deleteSavedPrompt() {
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
   prompts.splice(idx, 1);
   localStorage.setItem('spb_saved_prompts', JSON.stringify(prompts));
-  
-// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
-function setPostGenerateMode(generated) {
-  try {
-    const btnGenerate = document.getElementById('btn_generate');
-    if (!btnGenerate) return;
-    const btnCheck = document.getElementById('btn_check');
-    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
-    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
-    if (generated) {
-      btnGenerate.disabled = true;
-      btnGenerate.setAttribute('data-locked', '1');
-      btnGenerate.style.opacity = '0.5';
-      btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.style.background = '#86efac';
-      btnGenerate.style.color = '#166534';
-      btnGenerate.removeAttribute('onclick');
-      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
-      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
-    } else {
-      btnGenerate.disabled = false;
-      btnGenerate.removeAttribute('data-locked');
-      btnGenerate.style.opacity = '';
-      btnGenerate.style.cursor = '';
-      btnGenerate.style.background = '';
-      btnGenerate.style.color = '';
-      btnGenerate.setAttribute('onclick', 'generatePrompt()');
-      btnGenerate.title = '';
-      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
-    }
-  } catch(e) { console.warn('setPostGenerateMode:', e); }
-}
-
-// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
-async function checkInputs() {
-  const btn = event.currentTarget;
-  const originalText = btn.textContent;
-  const btnGenerate = document.getElementById('btn_generate');
-  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
-  // Alle Buttons sperren und Farbe wechseln
-  btn.disabled = true;
-  btn.style.background = '#93c5fd';
-  btn.style.color = '#1e40af';
-  btn.textContent = 'Analysiere Eingaben...';
-  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
-  btnsReopt.forEach(function(b) { b.disabled = true; });
-  const feedbackField = document.getElementById('feedback');
-  const taskField = document.getElementById('task_description');
-  const originalTask = taskField ? taskField.value.trim() : '';
-  const existingFeedback = feedbackField.value.trim();
-  const data = collectFormData();
-  data.mode = 'check';
-  try {
-    const result = await callN8n(data);
-    const r = Array.isArray(result) ? result[0] : result;
-    const improved = (r.checkSuggestions || '').trim();
-    var nl = String.fromCharCode(10);
-    if (improved) {
-      if (taskField) taskField.value = improved;
-      var newFeedback = '';
-      if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      } else {
-        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      }
-      feedbackField.value = newFeedback;
-    } else {
-      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
-      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
-    }
-    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
-    feedbackField.focus();
-  } catch (err) {
-    var nl = String.fromCharCode(10);
-    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
-  } finally {
-    btn.disabled = false;
-    btn.style.background = '#2563eb';
-    btn.style.color = 'white';
-    btn.textContent = originalText;
-    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
-    btnsReopt.forEach(function(b) { b.disabled = false; });
-  }
-}
-
-renderSavedPrompts();
+  renderSavedPrompts();
 }
 
 function renderSavedPrompts() {
@@ -1085,16 +934,11 @@ function renderSavedPrompts() {
   const select = document.getElementById('saved_prompts_select');
   select.innerHTML = '';
   if (indexed.length === 0) {
-    const opt = document.createElement('option');
-    opt.text = 'Keine gespeicherten Prompts';
-    opt.value = '';
-    select.appendChild(opt);
-    return;
+    const opt = document.createElement('option'); opt.text = 'Keine gespeicherten Prompts'; opt.value = ''; select.appendChild(opt); return;
   }
   indexed.forEach(p => {
     const opt = document.createElement('option');
-    const date = new Date(p.date).toLocaleDateString('de-CH');
-    opt.text = p.name + ' (' + date + ')';
+    opt.text = p.name + ' (' + new Date(p.date).toLocaleDateString('de-CH') + ')';
     opt.value = p.originalIndex;
     select.appendChild(opt);
   });
@@ -1115,7 +959,6 @@ const DEFAULT_MODELS = [
   { name:'Grok 4.3', provider:'xAI', inputM:1.25, outputM:2.50, context:'1M', training:'Echtzeit X', strengths:'Echtzeit-News, Social Media, Marktdaten', tier:'mid' },
   { name:'Grok 4 Fast', provider:'xAI', inputM:0.20, outputM:0.50, context:'2M', training:'Echtzeit X', strengths:'Schnelle Abfragen, News-Monitoring', tier:'budget' },
   { name:'DeepSeek V4 Pro', provider:'DeepSeek', inputM:0.435, outputM:0.87, context:'1M', training:'Dez 2024', strengths:'Coding, Tabellenanalyse, Excel-Logik', tier:'mid' },
-  { name:'DeepSeek V4 Flash', provider:'DeepSeek', inputM:0.14, outputM:0.28, context:'1M', training:'Dez 2024', strengths:'Budget-Massenverarbeitung, Coding', tier:'budget' },
   { name:'Mistral Large 3', provider:'Mistral', inputM:2.00, outputM:6.00, context:'128k', training:'Feb 2025', strengths:'EU-Datenschutz, DSGVO, Mehrsprachig', tier:'mid' },
   { name:'Llama 4 Maverick', provider:'Meta/OSS', inputM:0.27, outputM:0.85, context:'1M', training:'Jan 2025', strengths:'Open-Source, Selbst-Hosting, Datenschutz', tier:'budget' },
   { name:'Perplexity Pro', provider:'Perplexity', inputM:null, outputM:null, context:'32k', training:'Echtzeit', strengths:'Quellenbasierte Recherche, Fact-Checking', tier:'special' },
@@ -1140,7 +983,7 @@ const TIER_STYLE = {
 };
 function renderPricingTable() {
   const data = getPricingData();
-  document.getElementById('pricing_stand_text').textContent = `Stand: ${data.stand} · Bitte monatlich aktualisieren`;
+  document.getElementById('pricing_stand_text').textContent = 'Stand: ' + data.stand + ' · Bitte monatlich aktualisieren';
   document.getElementById('next_update_text').textContent = data.naechste || 'Nächsten Monat';
   const tbody = document.getElementById('pricing_tbody');
   tbody.innerHTML = '';
@@ -1149,17 +992,7 @@ function renderPricingTable() {
     const tr = document.createElement('tr');
     tr.style.background = i % 2 === 0 ? 'white' : '#f8fafc';
     tr.style.borderBottom = '1px solid #e2e8f0';
-    tr.innerHTML = `
-      <td style="padding:8px 12px;font-weight:600;white-space:nowrap;">${m.name}
-        <span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:${ts.bg};color:${ts.color};font-weight:600;">${ts.label}</span>
-      </td>
-      <td style="padding:8px;color:#6b7280;white-space:nowrap;">${m.provider}</td>
-      <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.inputM)}</td>
-      <td style="padding:8px;text-align:right;white-space:nowrap;">${fmtPrice(m.outputM)}</td>
-      <td style="padding:8px;text-align:right;white-space:nowrap;color:#6b7280;">${m.context}</td>
-      <td style="padding:8px;text-align:center;white-space:nowrap;font-size:0.78rem;color:#6b7280;">${m.training}</td>
-      <td style="padding:8px 12px;color:#6b7280;font-size:0.8rem;">${m.strengths}</td>
-    `;
+    tr.innerHTML = '<td style="padding:8px 12px;font-weight:600;white-space:nowrap;">' + m.name + ' <span style="display:inline-block;margin-left:4px;font-size:10px;padding:1px 5px;border-radius:3px;background:' + ts.bg + ';color:' + ts.color + ';font-weight:600;">' + ts.label + '</span></td><td style="padding:8px;color:#6b7280;white-space:nowrap;">' + m.provider + '</td><td style="padding:8px;text-align:right;white-space:nowrap;">' + fmtPrice(m.inputM) + '</td><td style="padding:8px;text-align:right;white-space:nowrap;">' + fmtPrice(m.outputM) + '</td><td style="padding:8px;text-align:right;white-space:nowrap;color:#6b7280;">' + m.context + '</td><td style="padding:8px;text-align:center;white-space:nowrap;font-size:0.78rem;color:#6b7280;">' + m.training + '</td><td style="padding:8px 12px;color:#6b7280;font-size:0.8rem;">' + m.strengths + '</td>';
     tbody.appendChild(tr);
   });
 }
@@ -1188,10 +1021,8 @@ function fillEditForm() {
 function saveEditedModel() {
   const data = getPricingData();
   const idx = parseInt(document.getElementById('edit_model_select').value);
-  const inVal = document.getElementById('edit_input_price').value.trim();
-  const outVal = document.getElementById('edit_output_price').value.trim();
-  data.modelle[idx].inputM = inVal ? parseFloat(inVal) : null;
-  data.modelle[idx].outputM = outVal ? parseFloat(outVal) : null;
+  data.modelle[idx].inputM = document.getElementById('edit_input_price').value.trim() ? parseFloat(document.getElementById('edit_input_price').value) : null;
+  data.modelle[idx].outputM = document.getElementById('edit_output_price').value.trim() ? parseFloat(document.getElementById('edit_output_price').value) : null;
   data.modelle[idx].context = document.getElementById('edit_context').value.trim();
   data.modelle[idx].training = document.getElementById('edit_training').value.trim();
   data.modelle[idx].strengths = document.getElementById('edit_strengths').value.trim();
@@ -1207,107 +1038,16 @@ function exportPricingCSV() {
   const data = getPricingData();
   const headers = ['Modell','Anbieter','Input $/M','Output $/M','Kontext','Training bis','Anwendungsgebiete','Tier'];
   const rows = data.modelle.map(m => [m.name, m.provider, m.inputM !== null ? m.inputM : 'Abo', m.outputM !== null ? m.outputM : '-', m.context, m.training, m.strengths, m.tier]);
-  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + v + '"').join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `KI_Modellpreise_${data.stand.replace(' ','_')}.csv`; a.click();
+  const a = document.createElement('a'); a.href = url; a.download = 'KI_Modellpreise_' + data.stand.replace(' ','_') + '.csv'; a.click();
   URL.revokeObjectURL(url);
 }
 document.getElementById('pricing_modal').addEventListener('click', function(e) { if (e.target === this) closePricingModal(); });
 document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
 
-
-// ── BUTTON-STATES NACH PROMPT GENERIEREN ─────────────────────────────────────
-function setPostGenerateMode(generated) {
-  try {
-    const btnGenerate = document.getElementById('btn_generate');
-    if (!btnGenerate) return;
-    const btnCheck = document.getElementById('btn_check');
-    const btnReoptimizeAction = document.querySelector('.actions button[onclick="reoptimizePrompt()"]');
-    const btnReoptimizeOutput = document.querySelector('#output_section button[onclick="reoptimizePrompt()"]');
-    if (generated) {
-      btnGenerate.disabled = true;
-      btnGenerate.setAttribute('data-locked', '1');
-      btnGenerate.style.opacity = '0.5';
-      btnGenerate.style.cursor = 'not-allowed';
-      btnGenerate.style.background = '#86efac';
-      btnGenerate.style.color = '#166534';
-      btnGenerate.removeAttribute('onclick');
-      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
-      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = '#16a34a'; btnReoptimizeAction.style.color = 'white'; btnReoptimizeAction.style.border = '2px solid #15803d'; btnReoptimizeAction.style.fontWeight = '700'; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = '#16a34a'; btnReoptimizeOutput.style.color = 'white'; btnReoptimizeOutput.style.border = '2px solid #15803d'; btnReoptimizeOutput.style.fontWeight = '700'; }
-    } else {
-      btnGenerate.disabled = false;
-      btnGenerate.removeAttribute('data-locked');
-      btnGenerate.style.opacity = '';
-      btnGenerate.style.cursor = '';
-      btnGenerate.style.background = '';
-      btnGenerate.style.color = '';
-      btnGenerate.setAttribute('onclick', 'generatePrompt()');
-      btnGenerate.title = '';
-      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
-      if (btnReoptimizeAction) { btnReoptimizeAction.style.background = ''; btnReoptimizeAction.style.color = ''; btnReoptimizeAction.style.border = ''; btnReoptimizeAction.style.fontWeight = ''; }
-      if (btnReoptimizeOutput) { btnReoptimizeOutput.style.background = ''; btnReoptimizeOutput.style.color = ''; btnReoptimizeOutput.style.border = ''; btnReoptimizeOutput.style.fontWeight = ''; }
-    }
-  } catch(e) { console.warn('setPostGenerateMode:', e); }
-}
-
-// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
-async function checkInputs() {
-  const btn = event.currentTarget;
-  const originalText = btn.textContent;
-  const btnGenerate = document.getElementById('btn_generate');
-  const btnsReopt = document.querySelectorAll('button[onclick="reoptimizePrompt()"]');
-  // Alle Buttons sperren und Farbe wechseln
-  btn.disabled = true;
-  btn.style.background = '#93c5fd';
-  btn.style.color = '#1e40af';
-  btn.textContent = 'Analysiere Eingaben...';
-  if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = true;
-  btnsReopt.forEach(function(b) { b.disabled = true; });
-  const feedbackField = document.getElementById('feedback');
-  const taskField = document.getElementById('task_description');
-  const originalTask = taskField ? taskField.value.trim() : '';
-  const existingFeedback = feedbackField.value.trim();
-  const data = collectFormData();
-  data.mode = 'check';
-  try {
-    const result = await callN8n(data);
-    const r = Array.isArray(result) ? result[0] : result;
-    const improved = (r.checkSuggestions || '').trim();
-    var nl = String.fromCharCode(10);
-    if (improved) {
-      if (taskField) taskField.value = improved;
-      var newFeedback = '';
-      if (!existingFeedback) {
-        newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      } else {
-        newFeedback = existingFeedback + nl + nl + '----------------------------------------' + nl + nl + 'Verbesserter Aufgabenbeschrieb:' + nl + improved + nl + nl;
-      }
-      feedbackField.value = newFeedback;
-    } else {
-      var msg = 'Eingaben sind vollstaendig. Du kannst jetzt den Prompt generieren.' + nl + nl;
-      feedbackField.value = existingFeedback ? existingFeedback + nl + nl + '----------------------------------------' + nl + nl + msg : msg;
-    }
-    feedbackField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    feedbackField.setSelectionRange(feedbackField.value.length, feedbackField.value.length);
-    feedbackField.focus();
-  } catch (err) {
-    var nl = String.fromCharCode(10);
-    feedbackField.value = (existingFeedback ? existingFeedback + nl + nl : '') + 'Fehler: ' + err.message + nl + nl;
-  } finally {
-    btn.disabled = false;
-    btn.style.background = '#2563eb';
-    btn.style.color = 'white';
-    btn.textContent = originalText;
-    if (btnGenerate && !btnGenerate.getAttribute('data-locked')) btnGenerate.disabled = false;
-    btnsReopt.forEach(function(b) { b.disabled = false; });
-  }
-}
-
 renderSavedPrompts();
 </script>
-
-
-</body></html>
+</body>
+</html>
