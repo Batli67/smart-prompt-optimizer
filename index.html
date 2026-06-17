@@ -685,8 +685,19 @@ async function checkInputs() {
   const taskField = document.getElementById('task_description');
   const originalTask = taskField ? taskField.value.trim() : '';
   const existingFeedback = feedbackField.value.trim();
+
+  // FIX PUNKT 2&3: Nur den echten User-Feedback extrahieren (nach letztem 💬 Marker)
+  const FEEDBACK_MARKER = '💬 Dein weiteres Feedback hier eingeben:';
+  const markerIdx = existingFeedback.lastIndexOf(FEEDBACK_MARKER);
+  var realUserFeedback = '';
+  if (markerIdx !== -1) {
+    realUserFeedback = existingFeedback.substring(markerIdx + FEEDBACK_MARKER.length).trim();
+  }
+
   const data = collectFormData();
   data.mode = 'check';
+  // Echten User-Feedback separat überschreiben – nicht den gesamten Feedbackfeldinhalt
+  data.feedback = realUserFeedback;
 
   const nl = '\n';
   try {
