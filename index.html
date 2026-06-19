@@ -301,13 +301,13 @@
       <div class="card-body">
         <div class="actions">
           <button class="btn btn-action" id="btn_check" onclick="checkInputs()" style="background:#2563eb;color:white;border:2px solid #1d4ed8;">🔍 Eingaben prüfen / erneut prüfen</button>
-          <button class="btn btn-green" id="btn_generate" onclick="generatePrompt()">✨ Prompt generieren</button>
+          <button class="btn btn-green" id="btn_generate" onclick="handleGenerateClick()">✨ Prompt generieren</button>
         </div>
         <div class="field" style="margin-top:16px;">
           <label for="feedback">Feedback / Anpassungen</label>
           <textarea id="feedback" placeholder="z. B. Fokus stärker auf Bewertung und Free Cashflow legen, Wettbewerber XYZ ergänzen..."></textarea>
         </div>
-        <button class="btn" id="btn_reoptimize_action" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
+        <button class="btn" id="btn_reoptimize_action" style="background:#e2e8f0;color:#9ca3af;border:1px solid #d1d5db;cursor:not-allowed;" onclick="handleReoptimizeClick(event)">🔄 Prompt erneut optimieren</button>
       </div>
     </section>
 
@@ -323,7 +323,7 @@
           <textarea id="output_prompt" class="prompt-preview" style="min-height:300px;width:100%;border:1px dashed #bfd1ef;border-radius:12px;padding:12px;background:#fafcff;resize:vertical;"></textarea>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
             <button class="btn btn-muted" onclick="copyToClipboard('output_prompt')">📋 Prompt kopieren</button>
-            <button class="btn" id="btn_reoptimize_output" style="background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;" onclick="reoptimizePrompt()">🔄 Prompt erneut optimieren</button>
+            <button class="btn" id="btn_reoptimize_output" style="background:#e2e8f0;color:#9ca3af;border:1px solid #d1d5db;cursor:not-allowed;" onclick="handleReoptimizeClick(event)">🔄 Prompt erneut optimieren</button>
           </div>
         </div>
         <div class="token-box" id="token_box">
@@ -702,6 +702,18 @@ function showClarification(question) {
 }
 
 // ── BUTTON-STATES ──────────────────────────────────────────────────────────
+// Guard-Funktionen: verhindern Auslösung trotz visueller Sperre
+function handleGenerateClick() {
+  const btn = document.getElementById('btn_generate');
+  if (btn.getAttribute('data-locked') === '1') return; // hard block
+  generatePrompt();
+}
+
+function handleReoptimizeClick(e) {
+  const btn = e.currentTarget;
+  if (btn.getAttribute('data-locked') === 'disabled') return; // hard block
+  reoptimizePrompt();
+}
 function setPostGenerateMode(generated) {
   try {
     const btnGenerate = document.getElementById('btn_generate');
@@ -710,7 +722,7 @@ function setPostGenerateMode(generated) {
     const btnReoptAction = document.getElementById('btn_reoptimize_action');
     const btnReoptOutput = document.getElementById('btn_reoptimize_output');
     if (generated) {
-      // Prompt generieren – sperren
+      // Prompt generieren – hart sperren (data-locked + disabled + visuell)
       btnGenerate.disabled = true;
       btnGenerate.setAttribute('data-locked', '1');
       btnGenerate.style.cssText = 'opacity:0.45;cursor:not-allowed;background:#86efac;color:#166534;';
@@ -718,22 +730,46 @@ function setPostGenerateMode(generated) {
       // Eingaben prüfen – sperren
       if (btnCheck) {
         btnCheck.disabled = true;
+        btnCheck.setAttribute('data-locked', '1');
         btnCheck.style.cssText = 'opacity:0.45;cursor:not-allowed;background:#93c5fd;color:#1e40af;';
         btnCheck.title = 'Eingaben gesperrt nach Prompt-Generierung.';
       }
-      // Erneut optimieren – hervorheben
-      if (btnReoptAction) { btnReoptAction.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
-      if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
+      // Erneut optimieren – aktivieren (grün)
+      if (btnReoptAction) {
+        btnReoptAction.disabled = false;
+        btnReoptAction.removeAttribute('data-locked');
+        btnReoptAction.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;cursor:pointer;';
+      }
+      if (btnReoptOutput) {
+        btnReoptOutput.disabled = false;
+        btnReoptOutput.removeAttribute('data-locked');
+        btnReoptOutput.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;cursor:pointer;';
+      }
       // Input-Felder visuell sperren
       lockInputFields();
     } else {
+      // Alles zurücksetzen
       btnGenerate.disabled = false;
       btnGenerate.removeAttribute('data-locked');
       btnGenerate.style.cssText = '';
       btnGenerate.title = '';
-      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.cssText = 'background:#2563eb;color:white;border:2px solid #1d4ed8;'; btnCheck.title = ''; }
-      if (btnReoptAction) { btnReoptAction.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
-      if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
+      if (btnCheck) {
+        btnCheck.disabled = false;
+        btnCheck.removeAttribute('data-locked');
+        btnCheck.style.cssText = 'background:#2563eb;color:white;border:2px solid #1d4ed8;';
+        btnCheck.title = '';
+      }
+      // Erneut optimieren – wieder sperren (grau, noch kein Prompt)
+      if (btnReoptAction) {
+        btnReoptAction.disabled = true;
+        btnReoptAction.setAttribute('data-locked', 'disabled');
+        btnReoptAction.style.cssText = 'background:#e2e8f0;color:#9ca3af;border:1px solid #d1d5db;cursor:not-allowed;';
+      }
+      if (btnReoptOutput) {
+        btnReoptOutput.disabled = true;
+        btnReoptOutput.setAttribute('data-locked', 'disabled');
+        btnReoptOutput.style.cssText = 'background:#e2e8f0;color:#9ca3af;border:1px solid #d1d5db;cursor:not-allowed;';
+      }
       unlockInputFields();
     }
   } catch(e) { console.warn('setPostGenerateMode:', e); }
@@ -855,6 +891,10 @@ async function generatePrompt(userClarification) {
     taskField.value = lastImprovedTask;
   }
 
+  // FIX: Feedback-Feld VOR dem Senden leeren – verhindert dass Node 11b
+  // den Prüf-Text als Feedback interpretiert und Fall B statt Fall A wählt
+  document.getElementById('feedback').value = '';
+
   const data = collectFormData(userClarification);
   data.mode = 'generate';
 
@@ -865,7 +905,6 @@ async function generatePrompt(userClarification) {
       showClarification(r.question);
     } else {
       showResult(r);
-      document.getElementById('feedback').value = '';
       lastImprovedTask = '';
       // originalTaskDescription bleibt bis Reset/Vorlage-Speichern erhalten
       setPostGenerateMode(true);
@@ -1247,6 +1286,8 @@ document.getElementById('pricing_modal').addEventListener('click', function(e) {
 document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
 
 renderSavedPrompts();
+// Initiale Button-Zustände: Reoptimize gesperrt bis erster Prompt generiert
+setPostGenerateMode(false);
 </script>
 </body>
 </html>
