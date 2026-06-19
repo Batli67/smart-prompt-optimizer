@@ -645,7 +645,7 @@ function collectFormData(userClarification) {
     feedback: document.getElementById('feedback').value,
     userClarification: userClarification,
     attachments: fileNames,
-    previousPrompt: document.getElementById('output_prompt').value || '',
+    previousPrompt: (() => { const v = document.getElementById('output_prompt').value || ''; return (v.startsWith('⏳') || v.startsWith('❌')) ? '' : v; })(),
     originalTaskDescription: originalTaskDescription  // NEU – eingefroren, nie geändert
   };
 }
@@ -920,6 +920,7 @@ async function generatePrompt(userClarification) {
 
 // ── PROMPT ERNEUT OPTIMIEREN ───────────────────────────────────────────────
 async function reoptimizePrompt() {
+  // FIX: previousPrompt und feedback VOR dem Überschreiben sichern
   const previousPrompt = document.getElementById('output_prompt').value || '';
   const feedback = document.getElementById('feedback').value || '';
 
@@ -928,10 +929,17 @@ async function reoptimizePrompt() {
     return;
   }
 
+  if (!feedback.trim()) {
+    alert('Bitte zuerst ein Feedback eingeben.');
+    return;
+  }
+
   const btn = event.currentTarget;
   const originalText = btn.textContent;
   btn.disabled = true;
   btn.textContent = '⏳ Wird verarbeitet...';
+
+  // Erst JETZT Output überschreiben – nach dem Sichern von previousPrompt
   document.getElementById('output_prompt').value = '⏳ Prompt wird optimiert...';
   document.getElementById('output_models').innerHTML = '';
   document.getElementById('output_optimizations').innerHTML = '';
@@ -954,7 +962,7 @@ async function reoptimizePrompt() {
     userClarification: '',
     attachments: '',
     previousPrompt: previousPrompt,
-    originalTaskDescription: originalTaskDescription,  // NEU – mitschicken
+    originalTaskDescription: originalTaskDescription,
     mode: 'feedback'
   };
 
@@ -965,6 +973,8 @@ async function reoptimizePrompt() {
       showClarification(r.question);
     } else {
       showResult(r);
+      // FIX: Feedback-Feld nach erfolgreichem Optimieren leeren
+      document.getElementById('feedback').value = '';
     }
   } catch (err) {
     document.getElementById('output_prompt').value = '❌ Fehler: ' + err.message;
