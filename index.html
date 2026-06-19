@@ -64,6 +64,36 @@
   .token-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; color: #166534; margin-bottom: 14px; }
   .save-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; }
   .footer-space { height: 6px; }
+
+  /* ── LOCKED STATE ─────────────────────────────────────────────────────── */
+  .inputs-locked input[type="text"],
+  .inputs-locked select,
+  .inputs-locked textarea,
+  .inputs-locked input[type="file"],
+  .inputs-locked .chip,
+  .inputs-locked .toggle {
+    opacity: 0.45;
+    pointer-events: none;
+    background: #f1f5f9 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed;
+  }
+  .inputs-locked .chip input {
+    pointer-events: none;
+  }
+  .locked-banner {
+    display: none;
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.88rem;
+    color: #92400e;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .inputs-locked .locked-banner { display: block; }
+
   @media (max-width: 980px) { .grid-2, .grid-3, .save-row { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -82,6 +112,7 @@
 
   <div class="stack">
 
+    <!-- TEMPLATE CARD – immer entsperrt -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">📂 Template / Vorlagen</h2>
@@ -114,145 +145,154 @@
       </div>
     </section>
 
-    <section class="card input-card">
-      <div class="card-header">
-        <h2 class="card-title">🧾 Aufgabendefinition</h2>
-        <p class="card-subtitle">Definiere Aufgabe, Rolle, Ziel, Format, Sprache und Tonalität für die Prompt-Optimierung.</p>
-      </div>
-      <div class="card-body">
-        <div class="field">
-          <label for="title">Titel</label>
-          <input id="title" type="text" placeholder="z. B. Analyse Sika Aktie vs. Wettbewerber">
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label for="category">Kategorie</label>
-            <select id="category">
-              <option>Korrespondenz / Kommunikation</option>
-              <option>Bericht / Zusammenfassung</option>
-              <option>Recherche / Informationssuche</option>
-              <option selected>Analyse / Beurteilung</option>
-              <option>Strukturierte Ausgabe / Tabelle / Liste</option>
-              <option>Kreativer Inhalt</option>
-              <option>Bildgenerierung / Bildbearbeitung</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="language">Sprache</label>
-            <select id="language">
-              <option selected>Deutsch</option>
-              <option>Englisch</option>
-              <option>Französisch</option>
-              <option>Italienisch</option>
-            </select>
-          </div>
-        </div>
-        <label class="toggle" id="web_search_toggle">
-          <input type="checkbox" id="web_search_active" checked>
-          🌐 Prompt Content Search on Internet / WEB explizit aktivieren
-        </label>
-        <div class="field">
-          <label for="task_description">Ziel der Aufgabe / Task Description</label>
-          <textarea id="task_description" placeholder="Beschreibe deine Aufgabe so detailliert wie möglich..."></textarea>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label for="role">Rolle</label>
-            <input id="role" type="text" placeholder="z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung">
-          </div>
-          <div class="field">
-            <label for="target_group">Zielgruppe</label>
-            <input id="target_group" type="text" placeholder="z. B. Privatinvestor, CEO, Kunde, Mitarbeiter">
-          </div>
-        </div>
-        <div class="field">
-          <label>Ausgabe Format <span class="hint">[Mehrfachauswahl]</span></label>
-          <div class="chips">
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext"> Freitext</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte"> Stichpunkte</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle"> Tabelle</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht"> Bericht</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail"> E-Mail</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich"> Vergleich</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Liste"> Liste</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung"> Zusammenfassung</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung"> Schlussfolgerung</label>
-            <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges"> Sonstiges</label>
-          </div>
-          <div id="sonstiges_container" style="display:none;margin-top:10px;">
-            <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben...">
-          </div>
-        </div>
-        <div class="field">
-          <label>Tonalität <span class="hint">[Mehrfachauswahl]</span></label>
-          <div class="chips" id="tone_chips">
-            <label class="chip"><input type="checkbox" value="sachlich"> sachlich</label>
-            <label class="chip"><input type="checkbox" value="formell"> formell</label>
-            <label class="chip"><input type="checkbox" value="freundlich"> freundlich</label>
-            <label class="chip"><input type="checkbox" value="kollegial"> kollegial</label>
-            <label class="chip"><input type="checkbox" value="Business"> Business</label>
-            <label class="chip"><input type="checkbox" value="locker"> locker</label>
-            <label class="chip"><input type="checkbox" value="überzeugend"> überzeugend</label>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- INPUT CARDS – werden nach Generate gesperrt -->
+    <div id="input_fields_wrapper">
 
-    <section class="card input-card">
-      <div class="card-header">
-        <h2 class="card-title">🌐 Erweiterte Optionen – Web Search Einstellungen</h2>
-        <p class="card-subtitle">Inhaltliche Angaben: Wie aktuell soll recherchiert werden und welche Quellen bevorzugt?</p>
-      </div>
-      <div class="card-body">
-        <div class="grid-3">
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">🧾 Aufgabendefinition</h2>
+          <p class="card-subtitle">Definiere Aufgabe, Rolle, Ziel, Format, Sprache und Tonalität für die Prompt-Optimierung.</p>
+        </div>
+        <div class="card-body">
+          <div class="locked-banner">🔒 Eingabefelder gesperrt. Nutze das Feedback-Feld oder bearbeite den Prompt direkt. Zum Entsperren: Clear / Reset, Demo laden, oder Vorlage speichern.</div>
           <div class="field">
-            <label for="web_search_mode">Web Search Modus</label>
-            <select id="web_search_mode">
-              <option>Keine Websuche</option>
-              <option>Websuche falls nötig</option>
-              <option selected>Websuche zwingend</option>
-            </select>
+            <label for="title">Titel</label>
+            <input id="title" type="text" placeholder="z. B. Analyse Sika Aktie vs. Wettbewerber">
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="category">Kategorie</label>
+              <select id="category">
+                <option>Korrespondenz / Kommunikation</option>
+                <option>Bericht / Zusammenfassung</option>
+                <option>Recherche / Informationssuche</option>
+                <option selected>Analyse / Beurteilung</option>
+                <option>Strukturierte Ausgabe / Tabelle / Liste</option>
+                <option>Kreativer Inhalt</option>
+                <option>Bildgenerierung / Bildbearbeitung</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="language">Sprache</label>
+              <select id="language">
+                <option selected>Deutsch</option>
+                <option>Englisch</option>
+                <option>Französisch</option>
+                <option>Italienisch</option>
+              </select>
+            </div>
+          </div>
+          <label class="toggle" id="web_search_toggle">
+            <input type="checkbox" id="web_search_active" checked>
+            🌐 Prompt Content Search on Internet / WEB explizit aktivieren
+          </label>
+          <div class="field">
+            <label for="task_description">Ziel der Aufgabe / Task Description</label>
+            <textarea id="task_description" placeholder="Beschreibe deine Aufgabe so detailliert wie möglich..."></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="role">Rolle</label>
+              <input id="role" type="text" placeholder="z. B. Senior Finanzanalyst mit Fokus auf Aktienbewertung">
+            </div>
+            <div class="field">
+              <label for="target_group">Zielgruppe</label>
+              <input id="target_group" type="text" placeholder="z. B. Privatinvestor, CEO, Kunde, Mitarbeiter">
+            </div>
           </div>
           <div class="field">
-            <label for="freshness">Aktualität / Freshness</label>
-            <select id="freshness">
-              <option>Heute</option>
-              <option>Diese Woche</option>
-              <option>Letzter Monat</option>
-              <option selected>Letzte 3 Monate</option>
-              <option>Seit Jahresbeginn</option>
-              <option>Letzte 12 Monate</option>
-              <option>Nicht relevant</option>
-            </select>
+            <label>Ausgabe Format <span class="hint">[Mehrfachauswahl]</span></label>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Freitext"> Freitext</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Stichpunkte"> Stichpunkte</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Tabelle"> Tabelle</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Bericht"> Bericht</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="E-Mail"> E-Mail</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Vergleich"> Vergleich</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Liste"> Liste</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Zusammenfassung"> Zusammenfassung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Schlussfolgerung"> Schlussfolgerung</label>
+              <label class="chip"><input type="checkbox" name="outputFormat" value="Sonstiges" id="chip_sonstiges"> Sonstiges</label>
+            </div>
+            <div id="sonstiges_container" style="display:none;margin-top:10px;">
+              <input id="outputFormat_sonstiges_text" type="text" placeholder="Bitte gewünschtes Ausgabeformat beschreiben...">
+            </div>
           </div>
           <div class="field">
-            <label for="preferred_sources">Bevorzugte Quellen</label>
-            <input id="preferred_sources" type="text" placeholder="z. B. Geschäftsberichte, Reuters, sec.gov">
+            <label>Tonalität <span class="hint">[Mehrfachauswahl]</span></label>
+            <div class="chips" id="tone_chips">
+              <label class="chip"><input type="checkbox" value="sachlich"> sachlich</label>
+              <label class="chip"><input type="checkbox" value="formell"> formell</label>
+              <label class="chip"><input type="checkbox" value="freundlich"> freundlich</label>
+              <label class="chip"><input type="checkbox" value="kollegial"> kollegial</label>
+              <label class="chip"><input type="checkbox" value="Business"> Business</label>
+              <label class="chip"><input type="checkbox" value="locker"> locker</label>
+              <label class="chip"><input type="checkbox" value="überzeugend"> überzeugend</label>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card input-card">
-      <div class="card-header">
-        <h2 class="card-title">📎 Anhänge</h2>
-        <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt. Grössenschätzung basiert auf Textinhalt (Bilder nicht eingerechnet).</p>
-      </div>
-      <div class="card-body">
-        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-          <div class="field" style="flex:1;min-width:220px;margin-bottom:0;">
-            <label for="attachments">Dateien hochladen</label>
-            <input id="attachments" type="file" multiple onchange="updateFileList()">
-          </div>
-          <div id="file_assessment" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-size:0.88rem;color:#166534;min-width:260px;">
-            <div id="file_assessment_content"></div>
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">🌐 Erweiterte Optionen – Web Search Einstellungen</h2>
+          <p class="card-subtitle">Inhaltliche Angaben: Wie aktuell soll recherchiert werden und welche Quellen bevorzugt?</p>
+        </div>
+        <div class="card-body">
+          <div class="locked-banner">🔒 Eingabefelder gesperrt. Nutze das Feedback-Feld oder bearbeite den Prompt direkt.</div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="web_search_mode">Web Search Modus</label>
+              <select id="web_search_mode">
+                <option>Keine Websuche</option>
+                <option>Websuche falls nötig</option>
+                <option selected>Websuche zwingend</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="freshness">Aktualität / Freshness</label>
+              <select id="freshness">
+                <option>Heute</option>
+                <option>Diese Woche</option>
+                <option>Letzter Monat</option>
+                <option selected>Letzte 3 Monate</option>
+                <option>Seit Jahresbeginn</option>
+                <option>Letzte 12 Monate</option>
+                <option>Nicht relevant</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="preferred_sources">Bevorzugte Quellen</label>
+              <input id="preferred_sources" type="text" placeholder="z. B. Geschäftsberichte, Reuters, sec.gov">
+            </div>
           </div>
         </div>
-        <ul id="file_list" class="file-list muted" style="margin-top:8px;"></ul>
-        <p class="muted" style="margin-top:6px;font-size:0.82rem;">📌 Roadmap: Echte Token-Analyse per Textextraktion (ohne Bilder) geplant</p>
-      </div>
-    </section>
+      </section>
 
+      <section class="card input-card">
+        <div class="card-header">
+          <h2 class="card-title">📎 Anhänge</h2>
+          <p class="card-subtitle">Dateien als Kontext hinzufügen. Dateiname wird im generierten Prompt erwähnt.</p>
+        </div>
+        <div class="card-body">
+          <div class="locked-banner">🔒 Eingabefelder gesperrt. Nutze das Feedback-Feld oder bearbeite den Prompt direkt.</div>
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="field" style="flex:1;min-width:220px;margin-bottom:0;">
+              <label for="attachments">Dateien hochladen</label>
+              <input id="attachments" type="file" multiple onchange="updateFileList()">
+            </div>
+            <div id="file_assessment" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-size:0.88rem;color:#166534;min-width:260px;">
+              <div id="file_assessment_content"></div>
+            </div>
+          </div>
+          <ul id="file_list" class="file-list muted" style="margin-top:8px;"></ul>
+          <p class="muted" style="margin-top:6px;font-size:0.82rem;">📌 Roadmap: Echte Token-Analyse per Textextraktion geplant</p>
+        </div>
+      </section>
+
+    </div><!-- end #input_fields_wrapper -->
+
+    <!-- AKTIONEN CARD – Feedback immer aktiv -->
     <section class="card action-card">
       <div class="card-header">
         <h2 class="card-title">⚙️ Aktionen</h2>
@@ -271,6 +311,7 @@
       </div>
     </section>
 
+    <!-- OUTPUT -->
     <section class="card output" id="output_section" style="display:none;">
       <div class="card-header">
         <h2 class="card-title">🧠 Generierter Prompt</h2>
@@ -320,6 +361,7 @@
       </div>
     </section>
 
+    <!-- PROMPT SPEICHERN – immer entsperrt -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">💾 Prompts speichern &amp; abrufen</h2>
@@ -446,6 +488,19 @@
 const WEBHOOK_URL = 'https://srv-lab-t-516.zhaw.ch:5678/webhook/prompt-optimizer-BA';
 const API_KEY = 'SPObat-+*@11062026';
 
+// ── STATE VARIABLEN ────────────────────────────────────────────────────────
+var lastImprovedTask = '';
+var originalTaskDescription = '';  // Eingefroren beim ersten Action-Button-Klick
+
+// ── INPUT-FELDER SPERREN / ENTSPERREN ─────────────────────────────────────
+function lockInputFields() {
+  document.getElementById('input_fields_wrapper').classList.add('inputs-locked');
+}
+
+function unlockInputFields() {
+  document.getElementById('input_fields_wrapper').classList.remove('inputs-locked');
+}
+
 // ── TEMPLATES ──────────────────────────────────────────────────────────────
 const TEMPLATES = {
   aktienanalyse: {
@@ -522,10 +577,20 @@ function setSelectValue(id, value) {
   }
 }
 
-function loadDemo() { setPostGenerateMode(false); document.getElementById('template_select').value = 'aktienanalyse'; loadTemplate('aktienanalyse'); }
+function loadDemo() {
+  setPostGenerateMode(false);
+  unlockInputFields();
+  originalTaskDescription = '';
+  lastImprovedTask = '';
+  document.getElementById('template_select').value = 'aktienanalyse';
+  loadTemplate('aktienanalyse');
+}
 
 function clearForm() {
   setPostGenerateMode(false);
+  unlockInputFields();
+  originalTaskDescription = '';
+  lastImprovedTask = '';
   ['title','task_description','role','target_group','preferred_sources','feedback','template_name','save_prompt_name'].forEach(id => { document.getElementById(id).value = ''; });
   document.querySelectorAll('input[name="outputFormat"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('#tone_chips input').forEach(cb => cb.checked = false);
@@ -580,7 +645,8 @@ function collectFormData(userClarification) {
     feedback: document.getElementById('feedback').value,
     userClarification: userClarification,
     attachments: fileNames,
-    previousPrompt: document.getElementById('output_prompt').value || ''
+    previousPrompt: document.getElementById('output_prompt').value || '',
+    originalTaskDescription: originalTaskDescription  // NEU – eingefroren, nie geändert
   };
 }
 
@@ -635,7 +701,7 @@ function showClarification(question) {
   document.getElementById('clarification_section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── BUTTON-STATES ─────────────────────────────────────────────────────────────
+// ── BUTTON-STATES ──────────────────────────────────────────────────────────
 function setPostGenerateMode(generated) {
   try {
     const btnGenerate = document.getElementById('btn_generate');
@@ -644,30 +710,42 @@ function setPostGenerateMode(generated) {
     const btnReoptAction = document.getElementById('btn_reoptimize_action');
     const btnReoptOutput = document.getElementById('btn_reoptimize_output');
     if (generated) {
+      // Prompt generieren – sperren
       btnGenerate.disabled = true;
       btnGenerate.setAttribute('data-locked', '1');
-      btnGenerate.style.cssText = 'opacity:0.5;cursor:not-allowed;background:#86efac;color:#166534;';
-      btnGenerate.title = 'Prompt bereits generiert. Nutze Prompt erneut optimieren.';
-      if (btnCheck) { btnCheck.disabled = true; btnCheck.style.opacity = '0.5'; }
+      btnGenerate.style.cssText = 'opacity:0.45;cursor:not-allowed;background:#86efac;color:#166534;';
+      btnGenerate.title = 'Prompt bereits generiert. Nutze "Prompt erneut optimieren".';
+      // Eingaben prüfen – sperren
+      if (btnCheck) {
+        btnCheck.disabled = true;
+        btnCheck.style.cssText = 'opacity:0.45;cursor:not-allowed;background:#93c5fd;color:#1e40af;';
+        btnCheck.title = 'Eingaben gesperrt nach Prompt-Generierung.';
+      }
+      // Erneut optimieren – hervorheben
       if (btnReoptAction) { btnReoptAction.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
       if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:#16a34a;color:white;border:2px solid #15803d;font-weight:700;'; }
+      // Input-Felder visuell sperren
+      lockInputFields();
     } else {
       btnGenerate.disabled = false;
       btnGenerate.removeAttribute('data-locked');
       btnGenerate.style.cssText = '';
       btnGenerate.title = '';
-      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.opacity = ''; }
+      if (btnCheck) { btnCheck.disabled = false; btnCheck.style.cssText = 'background:#2563eb;color:white;border:2px solid #1d4ed8;'; btnCheck.title = ''; }
       if (btnReoptAction) { btnReoptAction.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
       if (btnReoptOutput) { btnReoptOutput.style.cssText = 'background:var(--soft);color:var(--primary-dark);border:1px solid #bfd1ef;'; }
+      unlockInputFields();
     }
   } catch(e) { console.warn('setPostGenerateMode:', e); }
 }
 
-// ── EINGABEN PRÜFEN ───────────────────────────────────────────────────────────
-// Speicher für letzten verbesserten Task Description (für Punkt 4 Fix)
-var lastImprovedTask = '';
-
+// ── EINGABEN PRÜFEN ────────────────────────────────────────────────────────
 async function checkInputs() {
+  // EINFRIEREN – nur beim ersten Mal (wenn noch leer)
+  if (!originalTaskDescription) {
+    originalTaskDescription = document.getElementById('task_description').value.trim();
+  }
+
   const btn = document.getElementById('btn_check');
   const originalText = btn.textContent;
   const btnGenerate = document.getElementById('btn_generate');
@@ -686,7 +764,7 @@ async function checkInputs() {
   const originalTask = taskField ? taskField.value.trim() : '';
   const existingFeedback = feedbackField.value.trim();
 
-  // FIX PUNKT 2&3: Nur den echten User-Feedback extrahieren (nach letztem 💬 Marker)
+  // Nur echten User-Feedback extrahieren (nach letztem Marker)
   const FEEDBACK_MARKER = '💬 Dein weiteres Feedback hier eingeben:';
   const markerIdx = existingFeedback.lastIndexOf(FEEDBACK_MARKER);
   var realUserFeedback = '';
@@ -696,7 +774,6 @@ async function checkInputs() {
 
   const data = collectFormData();
   data.mode = 'check';
-  // Echten User-Feedback separat überschreiben – nicht den gesamten Feedbackfeldinhalt
   data.feedback = realUserFeedback;
 
   const nl = '\n';
@@ -706,11 +783,8 @@ async function checkInputs() {
     const improved = (r.checkSuggestions || '').trim();
 
     if (improved) {
-      // FIX PUNKT 2&3: Verbesserten Task Description im Speicher merken
       lastImprovedTask = improved;
-      // Verbesserten Aufgabenbeschrieb ins Task Description Feld schreiben
       if (taskField) taskField.value = improved;
-      // FIX PUNKT 1: Feedbackfeld mit Original + Verbesserung + Cursor am Ende
       var newFeedback = '';
       if (!existingFeedback) {
         newFeedback = 'Bestehender Aufgabenbeschrieb:' + nl + originalTask + nl + nl
@@ -726,7 +800,6 @@ async function checkInputs() {
       }
       feedbackField.value = newFeedback;
     } else {
-      // FIX PUNKT 1: Auch bei "vollständig" den originalTask voranstellen
       var msg = '';
       if (!existingFeedback) {
         msg = 'Aktueller Aufgabenbeschrieb:' + nl + originalTask + nl + nl
@@ -756,9 +829,15 @@ async function checkInputs() {
   }
 }
 
-// ── PROMPT GENERIEREN ─────────────────────────────────────────────────────────
+// ── PROMPT GENERIEREN ──────────────────────────────────────────────────────
 async function generatePrompt(userClarification) {
   userClarification = userClarification || '';
+
+  // EINFRIEREN – nur beim ersten Mal (wenn noch leer)
+  if (!originalTaskDescription) {
+    originalTaskDescription = document.getElementById('task_description').value.trim();
+  }
+
   const btn = document.getElementById('btn_generate');
   const originalText = btn.textContent;
   btn.disabled = true;
@@ -770,7 +849,7 @@ async function generatePrompt(userClarification) {
   document.getElementById('output_reason').textContent = '';
   document.getElementById('output_section').scrollIntoView({ behavior: 'smooth' });
 
-  // FIX PUNKT 4: Letzten verbesserten Task Description ins Formular übertragen
+  // Letzten verbesserten Task Description ins Formular übertragen
   const taskField = document.getElementById('task_description');
   if (lastImprovedTask && taskField) {
     taskField.value = lastImprovedTask;
@@ -786,9 +865,9 @@ async function generatePrompt(userClarification) {
       showClarification(r.question);
     } else {
       showResult(r);
-      // Feedbackfeld nach erfolgreichem Generate leeren + Speicher zurücksetzen
       document.getElementById('feedback').value = '';
       lastImprovedTask = '';
+      // originalTaskDescription bleibt bis Reset/Vorlage-Speichern erhalten
       setPostGenerateMode(true);
     }
   } catch (err) {
@@ -800,7 +879,7 @@ async function generatePrompt(userClarification) {
   }
 }
 
-// ── PROMPT ERNEUT OPTIMIEREN ──────────────────────────────────────────────────
+// ── PROMPT ERNEUT OPTIMIEREN ───────────────────────────────────────────────
 async function reoptimizePrompt() {
   const previousPrompt = document.getElementById('output_prompt').value || '';
   const feedback = document.getElementById('feedback').value || '';
@@ -836,6 +915,7 @@ async function reoptimizePrompt() {
     userClarification: '',
     attachments: '',
     previousPrompt: previousPrompt,
+    originalTaskDescription: originalTaskDescription,  // NEU – mitschicken
     mode: 'feedback'
   };
 
@@ -867,13 +947,34 @@ function copyToClipboard(elementId) {
   navigator.clipboard.writeText(text).then(() => alert('Prompt wurde kopiert!'));
 }
 
+// ── TEMPLATE SPEICHERN / AKTUALISIEREN ────────────────────────────────────
+// Nach Vorlage-Speichern: originalTaskDescription leeren + Felder entsperren
 function saveTemplate() {
   const name = document.getElementById('template_name').value.trim();
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
   const data = collectFormData();
+  // Nur Input-Felder speichern – Feedback und Output leer
+  const templateData = {
+    titel: data.titel,
+    kategorie: data.kategorie,
+    sprache: data.sprache,
+    aufgabe: data.aufgabe,
+    rolle: data.rolle,
+    zielgruppe: data.zielgruppe,
+    outputFormat: data.outputFormat,
+    tonalitaet: data.tonalitaet,
+    webSearch: data.webSearch,
+    webSearchMode: data.webSearchMode,
+    aktualitaet: data.aktualitaet,
+    preferredSources: data.preferredSources
+  };
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
-  templates[name] = data;
+  templates[name] = templateData;
   localStorage.setItem('spb_templates', JSON.stringify(templates));
+  // originalTaskDescription leeren + entsperren
+  originalTaskDescription = '';
+  lastImprovedTask = '';
+  setPostGenerateMode(false);
   alert('Vorlage "' + name + '" gespeichert!');
 }
 
@@ -882,19 +983,56 @@ function updateTemplate() {
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
   if (!templates[name]) { alert('Vorlage "' + name + '" nicht gefunden. Zuerst speichern.'); return; }
-  templates[name] = collectFormData();
+  const data = collectFormData();
+  // Nur Input-Felder speichern – Feedback und Output leer
+  templates[name] = {
+    titel: data.titel,
+    kategorie: data.kategorie,
+    sprache: data.sprache,
+    aufgabe: data.aufgabe,
+    rolle: data.rolle,
+    zielgruppe: data.zielgruppe,
+    outputFormat: data.outputFormat,
+    tonalitaet: data.tonalitaet,
+    webSearch: data.webSearch,
+    webSearchMode: data.webSearchMode,
+    aktualitaet: data.aktualitaet,
+    preferredSources: data.preferredSources
+  };
   localStorage.setItem('spb_templates', JSON.stringify(templates));
+  // originalTaskDescription leeren + entsperren
+  originalTaskDescription = '';
+  lastImprovedTask = '';
+  setPostGenerateMode(false);
   alert('Vorlage "' + name + '" aktualisiert!');
 }
 
+// ── PROMPT SPEICHERN / LADEN ───────────────────────────────────────────────
 function savePrompt() {
   const name = document.getElementById('save_prompt_name').value.trim();
   if (!name) { alert('Bitte einen Namen für den Prompt eingeben.'); return; }
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
+  const data = collectFormData();
   const entry = {
     name: name,
     date: new Date().toISOString(),
-    formData: collectFormData(),
+    // Nur Input-Felder (kein Feedback)
+    formData: {
+      titel: data.titel,
+      kategorie: data.kategorie,
+      sprache: data.sprache,
+      aufgabe: data.aufgabe,
+      rolle: data.rolle,
+      zielgruppe: data.zielgruppe,
+      outputFormat: data.outputFormat,
+      tonalitaet: data.tonalitaet,
+      webSearch: data.webSearch,
+      webSearchMode: data.webSearchMode,
+      aktualitaet: data.aktualitaet,
+      preferredSources: data.preferredSources,
+      feedback: '',          // bewusst leer
+      userClarification: ''  // bewusst leer
+    },
     output: {
       optimizedPrompt: document.getElementById('output_prompt').value,
       recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
@@ -913,7 +1051,23 @@ function updateSavedPrompt() {
   const idx = parseInt(select.value);
   if (isNaN(idx)) { alert('Bitte zuerst einen Prompt auswählen.'); return; }
   const prompts = JSON.parse(localStorage.getItem('spb_saved_prompts') || '[]');
-  prompts[idx].formData = collectFormData();
+  const data = collectFormData();
+  prompts[idx].formData = {
+    titel: data.titel,
+    kategorie: data.kategorie,
+    sprache: data.sprache,
+    aufgabe: data.aufgabe,
+    rolle: data.rolle,
+    zielgruppe: data.zielgruppe,
+    outputFormat: data.outputFormat,
+    tonalitaet: data.tonalitaet,
+    webSearch: data.webSearch,
+    webSearchMode: data.webSearchMode,
+    aktualitaet: data.aktualitaet,
+    preferredSources: data.preferredSources,
+    feedback: '',
+    userClarification: ''
+  };
   prompts[idx].output = {
     optimizedPrompt: document.getElementById('output_prompt').value,
     recommendedModels: Array.from(document.querySelectorAll('#output_models li')).map(li => li.textContent),
@@ -941,7 +1095,7 @@ function loadSavedPrompt() {
   document.getElementById('role').value = d.rolle || '';
   document.getElementById('target_group').value = d.zielgruppe || '';
   document.getElementById('preferred_sources').value = d.preferredSources || '';
-  document.getElementById('feedback').value = d.feedback || '';
+  document.getElementById('feedback').value = '';  // Feedback bewusst leer
   setSelectValue('web_search_mode', d.webSearchMode);
   setSelectValue('freshness', d.aktualitaet);
   const formats = (d.outputFormat || '').split(',').map(s => s.trim());
@@ -952,6 +1106,10 @@ function loadSavedPrompt() {
     showResult(entry.output);
     document.getElementById('output_prompt').value = entry.output.optimizedPrompt;
     document.getElementById('save_prompt_name').value = entry.name;
+    // Gespeicherter Prompt → sofort gesperrt darstellen
+    setPostGenerateMode(true);
+    // originalTaskDescription = aufgabe des gespeicherten Prompts (als Referenz falls erneut optimiert wird)
+    originalTaskDescription = d.aufgabe || '';
   }
 }
 
@@ -989,7 +1147,7 @@ document.getElementById('chip_sonstiges').addEventListener('change', function() 
   document.getElementById('sonstiges_container').style.display = this.checked ? 'block' : 'none';
 });
 
-// ── MODELLPREISE ──────────────────────────────────────────────────────────────
+// ── MODELLPREISE ───────────────────────────────────────────────────────────
 const DEFAULT_MODELS = [
   { name:'GPT-5.5', provider:'OpenAI', inputM:5.00, outputM:30.00, context:'128k', training:'Apr 2025', strengths:'Finanzanalyse, Reasoning, komplexe Analysen', tier:'premium' },
   { name:'GPT-5.4', provider:'OpenAI', inputM:2.50, outputM:10.00, context:'128k', training:'Apr 2025', strengths:'Analyse, Berichte, Tabellen, Recherche', tier:'mid' },
