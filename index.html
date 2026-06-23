@@ -505,10 +505,10 @@ function unlockInputFields() {
 const TEMPLATES = {
   aktienanalyse: {
     title: 'Analyse Sika Aktie vs. Wettbewerber', category: 'Analyse / Beurteilung', language: 'Deutsch', webSearch: true,
-    task: 'Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann, und wie sich Wachstum, Verschuldung, Free Cashflow, Dividendenpolitik und Share Buyback Politik im Vergleich zur Konkurrenz entwickeln. Ergänze KGV, EV/EBITDA Bewertung und ein Worst Case Szenario.',
+    task: 'Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist und ein Kauf der Aktie aktuell empfehlenswert ist',
     role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung', targetGroup: 'Privatinvestor mit Grundkenntnissen',
-    outputFormats: ['Vergleich', 'Tabelle', 'Zusammenfassung', 'Schlussfolgerung'], tone: ['sachlich', 'Business', 'überzeugend'],
-    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Investor Relations, Reuters'
+    outputFormats: ['Tabelle', 'Bericht', 'Vergleich', 'Schlussfolgerung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Investor Relations, Reuters, Yahoo Finance'
   },
   korrespondenz: {
     title: 'Professionelles Anschreiben für Stellenbewerbung', category: 'Korrespondenz / Kommunikation', language: 'Deutsch', webSearch: false,
@@ -554,20 +554,63 @@ const TEMPLATES = {
 };
 
 function loadTemplate(key) {
-  if (!key || !TEMPLATES[key]) return;
-  const t = TEMPLATES[key];
-  document.getElementById('title').value = t.title;
-  setSelectValue('category', t.category);
-  setSelectValue('language', t.language);
-  document.getElementById('web_search_active').checked = t.webSearch;
-  document.getElementById('task_description').value = t.task;
-  document.getElementById('role').value = t.role;
-  document.getElementById('target_group').value = t.targetGroup;
-  document.querySelectorAll('input[name="outputFormat"]').forEach(cb => { cb.checked = t.outputFormats.includes(cb.value); });
-  document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => { cb.checked = t.tone.includes(cb.value); });
-  setSelectValue('web_search_mode', t.webSearchMode);
-  setSelectValue('freshness', t.freshness);
-  document.getElementById('preferred_sources').value = t.sources;
+  if (!key) return;
+  // 1) Hartkodierte Code-Vorlage?
+  if (TEMPLATES[key]) {
+    const t = TEMPLATES[key];
+    document.getElementById('title').value = t.title;
+    setSelectValue('category', t.category);
+    setSelectValue('language', t.language);
+    document.getElementById('web_search_active').checked = t.webSearch;
+    document.getElementById('task_description').value = t.task;
+    document.getElementById('role').value = t.role;
+    document.getElementById('target_group').value = t.targetGroup;
+    document.querySelectorAll('input[name="outputFormat"]').forEach(cb => { cb.checked = t.outputFormats.includes(cb.value); });
+    document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => { cb.checked = t.tone.includes(cb.value); });
+    setSelectValue('web_search_mode', t.webSearchMode);
+    setSelectValue('freshness', t.freshness);
+    document.getElementById('preferred_sources').value = t.sources;
+    return;
+  }
+  // 2) Lokal gespeicherte Vorlage (localStorage, Präfix "ls:")
+  if (key.indexOf('ls:') === 0) {
+    const name = key.slice(3);
+    const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
+    const t = templates[name];
+    if (!t) return;
+    document.getElementById('title').value = t.titel || '';
+    setSelectValue('category', t.kategorie || '');
+    setSelectValue('language', t.sprache || '');
+    document.getElementById('web_search_active').checked = (t.webSearch === 'true' || t.webSearch === true);
+    document.getElementById('task_description').value = t.aufgabe || '';
+    document.getElementById('role').value = t.rolle || '';
+    document.getElementById('target_group').value = t.zielgruppe || '';
+    const fmts = (t.outputFormat || '').split(',').map(s => s.trim());
+    document.querySelectorAll('input[name="outputFormat"]').forEach(cb => { cb.checked = fmts.includes(cb.value); });
+    const tones = (t.tonalitaet || '').split(',').map(s => s.trim());
+    document.querySelectorAll('#tone_chips input[type="checkbox"]').forEach(cb => { cb.checked = tones.includes(cb.value); });
+    setSelectValue('web_search_mode', t.webSearchMode || '');
+    setSelectValue('freshness', t.aktualitaet || '');
+    document.getElementById('preferred_sources').value = t.preferredSources || '';
+  }
+}
+
+// Dropdown mit lokal gespeicherten Vorlagen ergänzen (Code-Vorlagen bleiben erhalten)
+function refreshTemplateDropdown() {
+  const sel = document.getElementById('template_select');
+  if (!sel) return;
+  const current = sel.value;
+  // Alte localStorage-Einträge (Präfix "ls:") entfernen
+  Array.from(sel.options).forEach(o => { if (o.value.indexOf('ls:') === 0) sel.removeChild(o); });
+  const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
+  Object.keys(templates).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = 'ls:' + name;
+    opt.text = '⭐ ' + name + ' (lokal)';
+    sel.appendChild(opt);
+  });
+  // Auswahl wiederherstellen falls noch vorhanden
+  if (Array.from(sel.options).some(o => o.value === current)) sel.value = current;
 }
 
 function setSelectValue(id, value) {
@@ -1020,6 +1063,8 @@ function saveTemplate() {
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
   templates[name] = templateData;
   localStorage.setItem('spb_templates', JSON.stringify(templates));
+  refreshTemplateDropdown();
+  document.getElementById('template_select').value = 'ls:' + name;
   // originalTaskDescription leeren + entsperren
   originalTaskDescription = '';
   lastImprovedTask = '';
@@ -1031,7 +1076,7 @@ function updateTemplate() {
   const name = document.getElementById('template_name').value.trim();
   if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
-  if (!templates[name]) { alert('Vorlage "' + name + '" nicht gefunden. Zuerst speichern.'); return; }
+  const existed = !!templates[name];
   const data = collectFormData();
   // Nur Input-Felder speichern – Feedback und Output leer
   templates[name] = {
@@ -1049,11 +1094,13 @@ function updateTemplate() {
     preferredSources: data.preferredSources
   };
   localStorage.setItem('spb_templates', JSON.stringify(templates));
+  refreshTemplateDropdown();
+  document.getElementById('template_select').value = 'ls:' + name;
   // originalTaskDescription leeren + entsperren
   originalTaskDescription = '';
   lastImprovedTask = '';
   setPostGenerateMode(false);
-  alert('Vorlage "' + name + '" aktualisiert!');
+  alert(existed ? 'Vorlage "' + name + '" aktualisiert!' : 'Lokale Vorlage "' + name + '" neu angelegt!');
 }
 
 // ── PROMPT SPEICHERN / LADEN ───────────────────────────────────────────────
@@ -1296,7 +1343,7 @@ document.getElementById('pricing_modal').addEventListener('click', function(e) {
 document.getElementById('edit_pricing_modal').addEventListener('click', function(e) { if (e.target === this) closeEditPricing(); });
 
 renderSavedPrompts();
-// Initiale Button-Zustände: Reoptimize gesperrt bis erster Prompt generiert
+refreshTemplateDropdown();
 setPostGenerateMode(false);
 </script>
 </body>
