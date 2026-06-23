@@ -504,6 +504,13 @@ function unlockInputFields() {
 // ── TEMPLATES ──────────────────────────────────────────────────────────────
 const TEMPLATES = {
   aktienanalyse: {
+    title: 'Analyse EXXON Mobile Aktie vs. Wettbewerber', category: 'Analyse / Beurteilung', language: 'Deutsch', webSearch: true,
+    task: 'Ich finde die Aktie von EXXON Mobile interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist. Beurteile auch, ob das Unternehmen einen Wettbewerbsvorteil oder Burggraben hat, der langfristig die Marktanteile sichern kann. Beurteile zudem ihre Dividendenausschüttung- und Share Buyback Politik.',
+    role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung', targetGroup: 'Privatinvestor mit Grundkenntnissen',
+    outputFormats: ['Tabelle', 'Bericht', 'Vergleich', 'Schlussfolgerung'], tone: ['sachlich', 'Business'],
+    webSearchMode: 'Websuche zwingend', freshness: 'Letzte 3 Monate', sources: 'Geschäftsberichte, Investor Relations, Reuters, Yahoo Finance'
+  },
+  sika_demo: {
     title: 'Analyse Sika Aktie vs. Wettbewerber', category: 'Analyse / Beurteilung', language: 'Deutsch', webSearch: true,
     task: 'Ich finde die Aktie von Sika interessant. Bitte analysiere das Unternehmen und teile mir mit, ob es im Vergleich zu seinen Wettbewerbern unterbewertet ist und ein Kauf der Aktie aktuell empfehlenswert ist',
     role: 'Senior Finanzanalyst mit Fokus auf Aktienbewertung', targetGroup: 'Privatinvestor mit Grundkenntnissen',
@@ -625,8 +632,8 @@ function loadDemo() {
   unlockInputFields();
   originalTaskDescription = '';
   lastImprovedTask = '';
-  document.getElementById('template_select').value = 'aktienanalyse';
-  loadTemplate('aktienanalyse');
+  document.getElementById('template_select').value = '';
+  loadTemplate('sika_demo');
 }
 
 function clearForm() {
@@ -1073,8 +1080,16 @@ function saveTemplate() {
 }
 
 function updateTemplate() {
-  const name = document.getElementById('template_name').value.trim();
-  if (!name) { alert('Bitte einen Template-Namen eingeben.'); return; }
+  // Name: zuerst Textfeld, sonst aktuell gewählte lokale Vorlage aus Dropdown
+  let name = document.getElementById('template_name').value.trim();
+  const sel = document.getElementById('template_select');
+  if (!name && sel && sel.value.indexOf('ls:') === 0) {
+    name = sel.value.slice(3);
+  }
+  if (!name) {
+    alert('Bitte zuerst eine lokale Vorlage im Dropdown auswählen oder einen Template-Namen eingeben.');
+    return;
+  }
   const templates = JSON.parse(localStorage.getItem('spb_templates') || '{}');
   const existed = !!templates[name];
   const data = collectFormData();
